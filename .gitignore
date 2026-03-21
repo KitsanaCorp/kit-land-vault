@@ -1,0 +1,35 @@
+# IDEs and Editors
+.idea/
+.vscode/
+*.swp
+*.iml
+*.iws
+.settings/
+.classpath
+.project
+
+# Node.js / Angular (Frontend)
+node_modules/
+dist/
+out-tsc/
+bazel-out/
+.angular/
+.npm/
+coverage/
+.DS_Store
+
+# Java / Spring Boot (Backend)
+target/
+build/
+bin/
+*.class
+*.jar
+*.war
+*.ear
+.mvn/
+!/.mvn/wrapper/maven-wrapper.jar
+!/.mvn/wrapper/maven-wrapper.properties
+
+# Logs and databases
+*.log
+*.sqlite

@@ -1,0 +1,33 @@
+# KitLandVault - Architecture & Specification
+
+## 1. Project Overview
+**Name:** KitLandVault
+**Description:** A modern, scalable Family Expense Tracker designed to manage daily finances, recurring expenses, and complex inter-family loans.
+**Architecture Style:** Decoupled Monorepo (Frontend / Backend / Infra)
+
+## 2. Tech Stack
+* **Frontend:** Angular Latest (Standalone Components), ng-aquila (UI Library), Progressive Web App (PWA), SCSS.
+* **Backend:** Java Spring Boot (Maven), Spring Web, Spring Data JPA, Spring Security (JWT), RESTful API.
+* **Database:** PostgreSQL.
+* **Infrastructure:** Docker & Docker Compose.
+
+## 3. Core Features
+* **User & Family Management:** Register/Login with JWT. Users belong to a Family Group.
+* **Transaction Tracking:** Record daily income and expenses.
+* **Category Management:** Support for 'One-time' and 'Recurring' transaction types.
+* **Advanced Loan System:** Track inter-family borrowing. Supports choosing between 'Full Payment' or 'Installment' payments.
+* **Dashboard:** Monthly and yearly financial summaries.
+
+## 4. Database Schema (PostgreSQL)
+* `users`: id, username, password_hash, family_id, role
+* `family_groups`: id, name, created_at
+* `categories`: id, name, type (ONE_TIME, RECURRING), transaction_type (INCOME, EXPENSE)
+* `transactions`: id, user_id, family_id, category_id, amount, transaction_date, description
+* `loans`: id, lender_id, borrower_id, total_amount, remaining_amount, status (PENDING, PARTIAL, PAID), payment_type (FULL, INSTALLMENT)
+* `loan_installments`: id, loan_id, amount_due, due_date, status (UNPAID, PAID), paid_date
+
+## 5. Directory Structure (Monorepo)
+/kit-land-vault
+  ├── /frontend      (Angular Application)
+  ├── /backend       (Spring Boot Application)
+  └── /infra         (Docker Compose & DB Setup)
