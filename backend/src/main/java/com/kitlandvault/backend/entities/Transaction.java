@@ -15,6 +15,12 @@ import java.time.LocalDateTime;
 @Builder
 public class Transaction {
 
+    public enum SplitType {
+        PERSONAL,
+        SHARED,
+        ON_BEHALF
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,8 +37,24 @@ public class Transaction {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "wallet_id")
+    private Wallet wallet;
+
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal amount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "split_type", nullable = false, length = 20)
+    @Builder.Default
+    private SplitType splitType = SplitType.PERSONAL;
+
+    @Column(name = "my_share", precision = 12, scale = 2)
+    private BigDecimal myShare;
+
+    @Column(name = "partner_share", precision = 12, scale = 2)
+    @Builder.Default
+    private BigDecimal partnerShare = BigDecimal.ZERO;
 
     @Column(name = "transaction_date", nullable = false)
     private LocalDate transactionDate;
@@ -41,7 +63,7 @@ public class Transaction {
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
-    
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
