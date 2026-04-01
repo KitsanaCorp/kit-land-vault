@@ -1,4 +1,5 @@
 import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
@@ -8,10 +9,12 @@ interface DatasetInfo {
   color: string;
   data: number[];
   visible: boolean;
+  baseBalance: number;
 }
 
 @Component({
   selector: 'app-balance-chart',
+  imports: [CommonModule],
   templateUrl: './balance-chart.html',
   styleUrl: './balance-chart.scss'
 })
@@ -20,12 +23,15 @@ export class BalanceChart implements AfterViewInit {
 
   chart!: Chart;
 
+  periods = ['1w', '1m', 'ytd', '1y', '5y', 'max'];
+  activePeriod = '1w';
+
   datasets: DatasetInfo[] = [
-    { label: 'SCB', color: '#5B428F', data: [40000, 42000, 39000, 45000, 43000, 45000], visible: true },
-    { label: 'LHB', color: '#E58E58', data: [2000, 2500, 2500, 3000, 2800, 3000], visible: true },
-    { label: 'Kept', color: '#5D9C96', data: [75000, 75000, 78000, 78000, 80000, 80000], visible: true },
-    { label: 'DIME', color: '#D96B6B', data: [10000, 10500, 11000, 11500, 12000, 12000], visible: true },
-    { label: 'K Mobile', color: '#6B8E7B', data: [6000, 5500, 4800, 5000, 5800, 5200], visible: true }
+    { label: 'SCB', color: '#5B428F', data: [], visible: true, baseBalance: 40000 },
+    { label: 'LHB', color: '#E58E58', data: [], visible: true, baseBalance: 2500 },
+    { label: 'Kept', color: '#5D9C96', data: [], visible: true, baseBalance: 75000 },
+    { label: 'DIME', color: '#D96B6B', data: [], visible: true, baseBalance: 11000 },
+    { label: 'K Mobile', color: '#6B8E7B', data: [], visible: true, baseBalance: 5000 }
   ];
 
   ngAfterViewInit(): void {
@@ -46,7 +52,7 @@ export class BalanceChart implements AfterViewInit {
     this.chart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+        labels: [],
         datasets: chartDatasets
       },
       options: {
@@ -80,6 +86,64 @@ export class BalanceChart implements AfterViewInit {
         interaction: { mode: 'nearest', axis: 'x', intersect: false }
       }
     });
+
+    // Initialize the chart with 1w data
+    this.selectPeriod('1w');
+  }
+
+  selectPeriod(period: string): void {
+    this.activePeriod = period;
+    let labels: string[] = [];
+    let dataPointsCount = 0;
+
+    switch (period) {
+      case '1w':
+        labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        dataPointsCount = 7;
+        break;
+      case '1m':
+        labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+        dataPointsCount = 4;
+        break;
+      case 'ytd':
+        labels = ['Jan', 'Feb', 'Mar', 'Apr']; // Mock current YTD up to April
+        dataPointsCount = 4;
+        break;
+      case '1y':
+        labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        dataPointsCount = 12;
+        break;
+      case '5y':
+        labels = ['2022', '2023', '2024', '2025', '2026'];
+        dataPointsCount = 5;
+        break;
+      case 'max':
+        labels = ['2016', '2018', '2020', '2022', '2024', '2026'];
+        dataPointsCount = 6;
+        break;
+    }
+
+    // Update labels
+    this.chart.data.labels = labels;
+
+    // Generate specific mock data based on period
+    this.chart.data.datasets.forEach((dataset, index) => {
+      const baseBalance = this.datasets[index].baseBalance;
+      const newData = [];
+      let currentVal = baseBalance;
+      
+      for (let i = 0; i < dataPointsCount; i++) {
+        // Mock random fluctuation
+        const fluctuation = (Math.random() - 0.3) * (baseBalance * 0.05); // slight upward bias
+        currentVal = Math.max(0, currentVal + fluctuation);
+        newData.push(Math.round(currentVal));
+      }
+
+      dataset.data = newData;
+      this.datasets[index].data = newData; // update internal model as well
+    });
+
+    this.chart.update();
   }
 
   toggleDataset(index: number): void {
