@@ -1,0 +1,23 @@
+<div class="col-span-1 lg:col-span-5 cozy-card p-5 flex flex-col">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-sm font-semibold text-slate-800">Recent Transactions</h2>
+        <button class="text-xs bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded-full font-medium transition">View All</button>
+    </div>
+
+    <div class="flex-1 space-y-4 overflow-y-auto pr-2 no-scrollbar">
+        @for (tx of transactions; track tx.name; let last = $last) {
+            <div class="flex items-center justify-between" [class.pb-3]="!last" [class.border-b]="!last" [class.border-slate-100]="!last">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm flex-shrink-0" [ngClass]="[tx.iconBg, tx.iconColor]">
+                        <i class="fa-solid" [ngClass]="tx.icon"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-sm font-semibold text-slate-800 truncate">{{ tx.name }}</p>
+                        <span class="px-2 py-0.5 text-[10px] rounded-full" [ngClass]="tx.tagStyle">{{ tx.tag }}</span>
+                    </div>
+                </div>
+                <p class="text-sm font-bold text-slate-800 flex-shrink-0 ml-2">- ฿{{ tx.amount | number }}</p>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,16 @@
+<div class="order-3 lg:order-none col-span-1 lg:col-span-6 lg:col-start-4 lg:row-span-2 lg:row-start-1 cozy-card p-5">
+    <h2 class="text-sm font-semibold text-slate-500 mb-4">Your Buckets</h2>
+    <div class="grid grid-cols-2 gap-3">
+        @for (bucket of buckets; track bucket.name; let last = $last) {
+            <div
+                class="text-white p-3 rounded-xl shadow-sm flex justify-between items-center"
+                [class.col-span-2]="last"
+                [style.background-color]="bucket.color">
+                <div>
+                    <p class="text-[10px] opacity-80"><i class="fa-solid fa-building-columns mr-1"></i> {{ bucket.name }}</p>
+                    <p class="font-bold">฿{{ bucket.balance | number }}</p>
+                </div>
+            </div>
+        }
+    </div>
+</div>
