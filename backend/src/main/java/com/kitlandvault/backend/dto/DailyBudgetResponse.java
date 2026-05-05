@@ -11,7 +11,9 @@ import java.math.BigDecimal;
 public class DailyBudgetResponse {
     private Long walletId;
     private String walletName;
+    private String accountRole;
     private BigDecimal totalBudget;
+    private BigDecimal reserveAmount;
     private BigDecimal spent;
     private BigDecimal remaining;
     private BigDecimal dailyRate;

@@ -11,7 +11,10 @@ import java.math.BigDecimal;
 public class WalletResponse {
     private Long id;
     private String name;
+    private String accountRole;
     private BigDecimal balance;
     private BigDecimal dailyBudget;
+    private BigDecimal reserveAmount;
+    private BigDecimal minBalance;
     private Integer budgetResetDay;
 }

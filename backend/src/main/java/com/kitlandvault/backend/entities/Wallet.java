@@ -14,6 +14,15 @@ import java.time.LocalDateTime;
 @Builder
 public class Wallet {
 
+    public enum AccountRole {
+        TRANSIT,        // BBL — receives salary, must clear to 0
+        DAILY,          // Kasikorn — daily spending, has daily allowance
+        BILLS,          // LHB You — fixed costs, maintains min balance
+        CAR_LOAN,       // SCB — strictly for car installments
+        SINKING_FUND,   // Kept — high-interest reserve with sub-goals
+        INVESTMENT      // Dime — holding for stocks/index funds
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,11 +34,23 @@ public class Wallet {
     @Column(nullable = false, length = 50)
     private String name;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "account_role", nullable = false, length = 20)
+    private AccountRole accountRole;
+
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal balance;
 
     @Column(name = "daily_budget", precision = 12, scale = 2)
     private BigDecimal dailyBudget;
+
+    @Column(name = "reserve_amount", precision = 12, scale = 2)
+    @Builder.Default
+    private BigDecimal reserveAmount = BigDecimal.ZERO;
+
+    @Column(name = "min_balance", precision = 12, scale = 2)
+    @Builder.Default
+    private BigDecimal minBalance = BigDecimal.ZERO;
 
     @Column(name = "budget_reset_day")
     @Builder.Default

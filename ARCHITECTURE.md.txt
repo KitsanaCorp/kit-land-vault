@@ -2,27 +2,34 @@
 
 ## 1. Project Overview
 **Name:** KitLandVault
-**Description:** A modern, scalable Family Expense Tracker designed to manage daily finances, recurring expenses, and complex inter-family loans.
+**Description:** A modern, scalable Family Expense Tracker designed to manage daily finances, recurring expenses, inter-family loans, and inter-account borrowing using a Zero-Based Budgeting (Bucket System).
 **Architecture Style:** Decoupled Monorepo (Frontend / Backend / Infra)
 
 ## 2. Tech Stack
-* **Frontend:** Angular Latest (Standalone Components), ng-aquila (UI Library), Progressive Web App (PWA), SCSS.
-* **Backend:** Java Spring Boot (Maven), Spring Web, Spring Data JPA, Spring Security (JWT), RESTful API.
+* **Frontend:** Angular 21 (Standalone Components), Tailwind CSS v4, Chart.js, Progressive Web App (PWA).
+* **Backend:** Java Spring Boot 3.4 (Maven), Spring Web, Spring Data JPA, Spring Security (JWT), RESTful API.
 * **Database:** PostgreSQL.
 * **Infrastructure:** Docker & Docker Compose.
 
 ## 3. Core Features
 * **User & Family Management:** Register/Login with JWT. Users belong to a Family Group.
-* **Transaction Tracking:** Record daily income and expenses.
+* **Transaction Tracking:** Record daily income and expenses with split-type support (Personal / Shared 50-50 / On Behalf).
 * **Category Management:** Support for 'One-time' and 'Recurring' transaction types.
-* **Advanced Loan System:** Track inter-family borrowing. Supports choosing between 'Full Payment' or 'Installment' payments.
-* **Dashboard:** Monthly and yearly financial summaries.
+* **6-Bucket Wallet System:** BBL (Transit), Kasikorn (Daily), LHB You (Bills), SCB (Car Loan), Kept (Sinking Fund), Dime (Investment).
+* **Co-pay & Settlement:** Track partner debts. Reimbursements are Wallet Replenishment (not Income).
+* **Inter-Account Borrowing:** Track loans between user's own wallets with repayment tracker.
+* **Inter-Person Loans:** Track borrowing between family members. Supports 'Full Payment' or 'Installment' payments.
+* **Dashboard:** Monthly and yearly financial summaries with daily allowance tracking.
 
 ## 4. Database Schema (PostgreSQL)
 * `users`: id, username, password_hash, family_id, role
 * `family_groups`: id, name, created_at
 * `categories`: id, name, type (ONE_TIME, RECURRING), transaction_type (INCOME, EXPENSE)
-* `transactions`: id, user_id, family_id, category_id, amount, transaction_date, description
+* `wallets`: id, user_id, name, account_role (TRANSIT, DAILY, BILLS, CAR_LOAN, SINKING_FUND, INVESTMENT), balance, daily_budget, reserve_amount, min_balance, budget_reset_day
+* `wallet_goals`: id, wallet_id, name, target_amount, current_amount, priority
+* `transactions`: id, user_id, family_id, category_id, wallet_id, amount, split_type (PERSONAL, SHARED, ON_BEHALF), my_share, partner_share, transaction_date, description
+* `settlements`: id, creditor_id, debtor_id, transaction_id, amount, type (RECEIVABLE, REPAYMENT), target_wallet_id, status (PENDING, SETTLED), settled_at, note
+* `internal_transfers`: id, user_id, source_wallet_id, destination_wallet_id, amount, remaining_amount, status (ACTIVE, PARTIALLY_REPAID, REPAID), note, repaid_at
 * `loans`: id, lender_id, borrower_id, total_amount, remaining_amount, status (PENDING, PARTIAL, PAID), payment_type (FULL, INSTALLMENT)
 * `loan_installments`: id, loan_id, amount_due, due_date, status (UNPAID, PAID), paid_date
 

@@ -58,19 +58,28 @@ public class WalletService {
         int dayOfMonth = today.getDayOfMonth();
         int daysRemaining = totalDays - dayOfMonth + 1; // including today
 
+        // Deduct reserve (e.g., ฿3,000 for groceries) before calculating daily allowance
+        BigDecimal reserve = wallet.getReserveAmount() != null
+                ? wallet.getReserveAmount() : BigDecimal.ZERO;
+        BigDecimal spendableBalance = wallet.getBalance().subtract(reserve);
+        if (spendableBalance.compareTo(BigDecimal.ZERO) < 0) {
+            spendableBalance = BigDecimal.ZERO;
+        }
+
         BigDecimal totalBudget = wallet.getDailyBudget().multiply(BigDecimal.valueOf(totalDays));
-        BigDecimal remaining = wallet.getBalance();
-        BigDecimal spent = totalBudget.subtract(remaining);
+        BigDecimal spent = totalBudget.subtract(spendableBalance);
         BigDecimal dailyRate = daysRemaining > 0
-                ? remaining.divide(BigDecimal.valueOf(daysRemaining), 2, RoundingMode.HALF_UP)
+                ? spendableBalance.divide(BigDecimal.valueOf(daysRemaining), 2, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO;
 
         return DailyBudgetResponse.builder()
                 .walletId(walletId)
                 .walletName(wallet.getName())
+                .accountRole(wallet.getAccountRole() != null ? wallet.getAccountRole().name() : null)
                 .totalBudget(totalBudget)
+                .reserveAmount(reserve)
                 .spent(spent)
-                .remaining(remaining)
+                .remaining(spendableBalance)
                 .dailyRate(dailyRate)
                 .daysRemaining(daysRemaining)
                 .build();
@@ -80,8 +89,11 @@ public class WalletService {
         return WalletResponse.builder()
                 .id(w.getId())
                 .name(w.getName())
+                .accountRole(w.getAccountRole() != null ? w.getAccountRole().name() : null)
                 .balance(w.getBalance())
                 .dailyBudget(w.getDailyBudget())
+                .reserveAmount(w.getReserveAmount())
+                .minBalance(w.getMinBalance())
                 .budgetResetDay(w.getBudgetResetDay())
                 .build();
     }
