@@ -28,7 +28,7 @@ export interface DailyBudgetInfo {
 
 @Injectable({ providedIn: 'root' })
 export class WalletService {
-  private readonly API_URL = 'http://localhost:8080/api';
+  private readonly API_URL = '/api';
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
