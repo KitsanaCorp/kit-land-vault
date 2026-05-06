@@ -29,6 +29,7 @@ const ROLE_COLORS: Record<string, string> = {
 export class BucketSummary implements OnInit {
   buckets: { name: string; balance: number; color: string; role: string }[] = [];
   loading = true;
+  error = false;
   totalBalance = 0;
 
   constructor(private walletService: WalletService) {}
@@ -47,6 +48,7 @@ export class BucketSummary implements OnInit {
       },
       error: () => {
         this.loading = false;
+        this.error = true;
       }
     });
   }

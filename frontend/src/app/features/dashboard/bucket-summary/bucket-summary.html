@@ -1,18 +1,38 @@
 <div class="order-3 lg:order-none col-span-1 lg:col-span-6 lg:col-start-4 lg:row-span-2 lg:row-start-1 cozy-card p-5">
     <div class="flex items-center justify-between mb-4">
         <h2 class="text-sm font-semibold text-slate-500">Your Buckets</h2>
-        @if (!loading) {
+        @if (!loading && !error && buckets.length > 0) {
             <span class="text-xs text-slate-400">Total: ฿{{ totalBalance | number }}</span>
         }
     </div>
 
     @if (loading) {
+        <!-- Loading skeleton -->
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
             @for (i of [1,2,3,4,5,6]; track i) {
                 <div class="h-16 rounded-xl bg-slate-100 animate-pulse"></div>
             }
         </div>
+    } @else if (error) {
+        <!-- Error state -->
+        <div class="flex flex-col items-center justify-center py-8 text-center">
+            <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-3">
+                <i class="fa-solid fa-triangle-exclamation text-red-400 text-lg"></i>
+            </div>
+            <p class="text-sm font-medium text-slate-600">Unable to load wallets</p>
+            <p class="text-xs text-slate-400 mt-1">Please check your connection and try again</p>
+        </div>
+    } @else if (buckets.length === 0) {
+        <!-- Empty state -->
+        <div class="flex flex-col items-center justify-center py-8 text-center">
+            <div class="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center mb-3">
+                <i class="fa-solid fa-wallet text-slate-300 text-lg"></i>
+            </div>
+            <p class="text-sm font-medium text-slate-600">No wallets yet</p>
+            <p class="text-xs text-slate-400 mt-1">Create your first wallet to get started</p>
+        </div>
     } @else {
+        <!-- Wallet cards -->
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
             @for (bucket of buckets; track bucket.name) {
                 <div

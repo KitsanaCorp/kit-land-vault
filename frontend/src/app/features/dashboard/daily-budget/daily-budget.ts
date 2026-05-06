@@ -17,6 +17,8 @@ export class DailyBudget implements OnInit {
   status = 'Good';
   statusColor = '#22c55e';
   loading = true;
+  error = false;
+  noWallet = false;
 
   constructor(private walletService: WalletService) {}
 
@@ -36,13 +38,14 @@ export class DailyBudget implements OnInit {
               this.updateStatus();
               this.loading = false;
             },
-            error: () => { this.loading = false; }
+            error: () => { this.loading = false; this.error = true; }
           });
         } else {
           this.loading = false;
+          this.noWallet = true;
         }
       },
-      error: () => { this.loading = false; }
+      error: () => { this.loading = false; this.error = true; }
     });
   }
 
