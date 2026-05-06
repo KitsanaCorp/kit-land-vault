@@ -46,28 +46,37 @@ public class DataInitializer implements CommandLineRunner {
         entityManager.persist(family);
         entityManager.flush();
 
-        // 2. Create User
-        User user = User.builder()
-                .username("kit")
-                .passwordHash(passwordEncoder.encode("password123"))
+        // 2. Create Users
+        User admin = User.builder()
+                .username("admin")
+                .passwordHash(passwordEncoder.encode("KitVault@2026"))
                 .role("ADMIN")
                 .familyGroup(family)
                 .build();
-        user = userRepository.save(user);
-        log.info("Created user: {} (id={})", user.getUsername(), user.getId());
+        admin = userRepository.save(admin);
+        log.info("Created admin user: {} (id={})", admin.getUsername(), admin.getId());
+
+        User kit = User.builder()
+                .username("kit")
+                .passwordHash(passwordEncoder.encode("password123"))
+                .role("USER")
+                .familyGroup(family)
+                .build();
+        kit = userRepository.save(kit);
+        log.info("Created user: {} (id={})", kit.getUsername(), kit.getId());
 
         // 3. Create 6 Wallets
-        Wallet bbl = createWallet(user, "BBL", Wallet.AccountRole.TRANSIT,
+        Wallet bbl = createWallet(admin, "BBL", Wallet.AccountRole.TRANSIT,
                 BigDecimal.ZERO, null, null, null);
-        Wallet kasikorn = createWallet(user, "Kasikorn", Wallet.AccountRole.DAILY,
+        Wallet kasikorn = createWallet(admin, "Kasikorn", Wallet.AccountRole.DAILY,
                 new BigDecimal("18000"), new BigDecimal("600"), new BigDecimal("3000"), null);
-        Wallet lhbYou = createWallet(user, "LHB You", Wallet.AccountRole.BILLS,
+        Wallet lhbYou = createWallet(admin, "LHB You", Wallet.AccountRole.BILLS,
                 new BigDecimal("35000"), null, null, new BigDecimal("10000"));
-        Wallet scb = createWallet(user, "SCB", Wallet.AccountRole.CAR_LOAN,
+        Wallet scb = createWallet(admin, "SCB", Wallet.AccountRole.CAR_LOAN,
                 new BigDecimal("14283"), null, null, null);
-        Wallet kept = createWallet(user, "Kept", Wallet.AccountRole.SINKING_FUND,
+        Wallet kept = createWallet(admin, "Kept", Wallet.AccountRole.SINKING_FUND,
                 new BigDecimal("80000"), null, null, null);
-        Wallet dime = createWallet(user, "Dime", Wallet.AccountRole.INVESTMENT,
+        Wallet dime = createWallet(admin, "Dime", Wallet.AccountRole.INVESTMENT,
                 new BigDecimal("12000"), null, null, null);
 
         log.info("Created 6 wallets: BBL, Kasikorn, LHB You, SCB, Kept, Dime");
