@@ -1,12 +1,24 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { WalletService, Wallet } from '../../../core/services/wallet.service';
 
-interface Bucket {
-  name: string;
-  balance: number;
-  color: string;
-  role: string;
-}
+const ROLE_LABELS: Record<string, string> = {
+  TRANSIT: 'Transit',
+  DAILY: 'Daily',
+  BILLS: 'Bills',
+  CAR_LOAN: 'Car Loan',
+  SINKING_FUND: 'Sinking Fund',
+  INVESTMENT: 'Investment'
+};
+
+const ROLE_COLORS: Record<string, string> = {
+  TRANSIT: '#1E3A5F',
+  DAILY: '#6B8E7B',
+  BILLS: '#E58E58',
+  CAR_LOAN: '#5B428F',
+  SINKING_FUND: '#5D9C96',
+  INVESTMENT: '#D96B6B'
+};
 
 @Component({
   selector: 'app-bucket-summary',
@@ -14,13 +26,28 @@ interface Bucket {
   templateUrl: './bucket-summary.html',
   styleUrl: './bucket-summary.scss'
 })
-export class BucketSummary {
-  buckets: Bucket[] = [
-    { name: 'BBL', balance: 0, color: '#1E3A5F', role: 'Transit' },
-    { name: 'Kasikorn', balance: 18000, color: '#6B8E7B', role: 'Daily' },
-    { name: 'LHB You', balance: 35000, color: '#E58E58', role: 'Bills' },
-    { name: 'SCB', balance: 14283, color: '#5B428F', role: 'Car Loan' },
-    { name: 'Kept', balance: 80000, color: '#5D9C96', role: 'Sinking Fund' },
-    { name: 'Dime', balance: 12000, color: '#D96B6B', role: 'Investment' }
-  ];
+export class BucketSummary implements OnInit {
+  buckets: { name: string; balance: number; color: string; role: string }[] = [];
+  loading = true;
+  totalBalance = 0;
+
+  constructor(private walletService: WalletService) {}
+
+  ngOnInit() {
+    this.walletService.getWallets().subscribe({
+      next: (wallets) => {
+        this.buckets = wallets.map(w => ({
+          name: w.name,
+          balance: w.balance,
+          color: ROLE_COLORS[w.accountRole] || '#64748b',
+          role: ROLE_LABELS[w.accountRole] || w.accountRole
+        }));
+        this.totalBalance = wallets.reduce((sum, w) => sum + w.balance, 0);
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      }
+    });
+  }
 }

@@ -1,37 +1,60 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { WalletService, Wallet, DailyBudgetInfo } from '../../../core/services/wallet.service';
 
 @Component({
   selector: 'app-daily-budget',
+  imports: [CommonModule],
   templateUrl: './daily-budget.html',
   styleUrl: './daily-budget.scss'
 })
 export class DailyBudget implements OnInit {
-  walletName = 'Kasikorn';
-  balance = 18000;
-  groceriesReserve = 3000;
+  walletName = '';
   budgetAmount = 0;
+  remaining = 0;
+  reserveAmount = 0;
+  daysRemaining = 0;
   status = 'Good';
+  statusColor = '#22c55e';
+  loading = true;
+
+  constructor(private walletService: WalletService) {}
 
   ngOnInit() {
-    this.calculateDailyBudget();
+    // First get wallets, find the DAILY one, then get its budget info
+    this.walletService.getWallets().subscribe({
+      next: (wallets) => {
+        const dailyWallet = wallets.find(w => w.accountRole === 'DAILY');
+        if (dailyWallet) {
+          this.walletName = dailyWallet.name;
+          this.walletService.getDailyBudget(dailyWallet.id).subscribe({
+            next: (info) => {
+              this.budgetAmount = info.dailyRate;
+              this.remaining = info.remaining;
+              this.reserveAmount = info.reserveAmount;
+              this.daysRemaining = info.daysRemaining;
+              this.updateStatus();
+              this.loading = false;
+            },
+            error: () => { this.loading = false; }
+          });
+        } else {
+          this.loading = false;
+        }
+      },
+      error: () => { this.loading = false; }
+    });
   }
 
-  private calculateDailyBudget() {
-    const today = new Date();
-    const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-    const daysRemaining = daysInMonth - today.getDate() + 1;
-    const spendable = Math.max(this.balance - this.groceriesReserve, 0);
-    this.budgetAmount = Math.round(spendable / daysRemaining);
-
+  private updateStatus() {
     if (this.budgetAmount >= 500) {
-      this.status = 'Great';
+      this.status = 'Great'; this.statusColor = '#22c55e';
     } else if (this.budgetAmount >= 300) {
-      this.status = 'Good';
+      this.status = 'Good'; this.statusColor = '#3b82f6';
     } else if (this.budgetAmount >= 150) {
-      this.status = 'Tight';
+      this.status = 'Tight'; this.statusColor = '#f59e0b';
     } else {
-      this.status = 'Critical';
+      this.status = 'Critical'; this.statusColor = '#ef4444';
     }
   }
 }
-

@@ -1,10 +1,29 @@
 <div class="order-1 lg:order-none col-span-1 lg:col-span-3 lg:col-start-1 lg:row-span-2 lg:row-start-1 cozy-card p-5 flex flex-col justify-center items-center relative">
     <h2 class="text-sm font-semibold text-slate-500 absolute top-5 left-5">Daily Budget</h2>
-    <div class="relative w-32 h-32 mt-6 flex items-center justify-center rounded-full border-8 border-slate-100 border-t-[#6B8E7B] border-r-[#6B8E7B] transform rotate-45">
-        <div class="transform -rotate-45 text-center">
-            <p class="text-2xl font-bold text-slate-800">฿{{ budgetAmount }}</p>
-            <p class="text-[10px] text-slate-400">/ day</p>
+
+    @if (loading) {
+        <div class="w-32 h-32 mt-6 rounded-full bg-slate-100 animate-pulse"></div>
+        <div class="w-24 h-5 mt-4 rounded-full bg-slate-100 animate-pulse"></div>
+    } @else {
+        <p class="text-[10px] text-slate-400 absolute top-5 right-5">{{ walletName }}</p>
+        <div class="relative w-32 h-32 mt-6 flex items-center justify-center rounded-full border-8 border-slate-100"
+             [style.border-top-color]="statusColor"
+             [style.border-right-color]="statusColor"
+             style="transform: rotate(45deg)">
+            <div style="transform: rotate(-45deg)" class="text-center">
+                <p class="text-2xl font-bold text-slate-800">฿{{ budgetAmount | number }}</p>
+                <p class="text-[10px] text-slate-400">/ day</p>
+            </div>
         </div>
-    </div>
-    <p class="text-xs font-medium text-emerald-600 mt-4 bg-emerald-50 px-3 py-1 rounded-full">Status: {{ status }}</p>
+        <p class="text-xs font-medium mt-4 px-3 py-1 rounded-full"
+           [style.color]="statusColor"
+           [style.background-color]="statusColor + '15'">
+            Status: {{ status }}
+        </p>
+        <div class="flex gap-3 mt-2 text-[10px] text-slate-400">
+            <span>{{ daysRemaining }}d left</span>
+            <span>•</span>
+            <span>฿{{ remaining | number }} pool</span>
+        </div>
+    }
 </div>
