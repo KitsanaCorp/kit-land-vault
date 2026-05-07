@@ -1,0 +1,98 @@
+<div class="h-full flex flex-col p-4 lg:p-8 bg-[#F7F5F0] overflow-y-auto">
+    <div class="max-w-4xl w-full mx-auto">
+        <!-- Header -->
+        <div class="flex items-center gap-4 mb-8">
+            <button [routerLink]="['/']" class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-50 transition shadow-sm border border-slate-100 cursor-pointer">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <div>
+                <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Transactions History</h1>
+                <p class="text-sm text-slate-500">All your recorded expenses and transfers</p>
+            </div>
+        </div>
+
+        <!-- Main Card -->
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-100/60 overflow-hidden">
+            <!-- Filter Bar (Placeholder for future) -->
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <div class="flex gap-2">
+                    <button class="px-4 py-1.5 bg-white border border-slate-200 rounded-full text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition">All</button>
+                    <button class="px-4 py-1.5 bg-transparent border border-transparent rounded-full text-xs font-medium text-slate-500 hover:bg-slate-100 transition">Personal</button>
+                    <button class="px-4 py-1.5 bg-transparent border border-transparent rounded-full text-xs font-medium text-slate-500 hover:bg-slate-100 transition">Shared</button>
+                </div>
+                <button class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-filter"></i>
+                </button>
+            </div>
+
+            <!-- List -->
+            <div class="p-2 sm:p-6 min-h-[400px]">
+                @if (loading) {
+                    <!-- Loading State -->
+                    <div class="space-y-4">
+                        @for (i of [1,2,3,4,5]; track i) {
+                            <div class="flex items-center gap-4 p-3 border border-slate-50 rounded-2xl animate-pulse">
+                                <div class="w-12 h-12 rounded-full bg-slate-100 flex-shrink-0"></div>
+                                <div class="flex-1 space-y-2">
+                                    <div class="w-1/3 h-4 bg-slate-100 rounded"></div>
+                                    <div class="w-1/4 h-3 bg-slate-100 rounded"></div>
+                                </div>
+                                <div class="w-16 h-5 bg-slate-100 rounded"></div>
+                            </div>
+                        }
+                    </div>
+                } @else if (error) {
+                    <!-- Error State -->
+                    <div class="flex flex-col items-center justify-center py-20 text-center">
+                        <div class="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-plug-circle-xmark text-red-400 text-2xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-700">Connection Error</h3>
+                        <p class="text-sm text-slate-500 mt-1 max-w-xs">Could not load your transactions. Please check your connection and try again.</p>
+                        <button (click)="loadTransactions()" class="mt-6 px-6 py-2 bg-slate-800 text-white rounded-xl text-sm font-medium hover:bg-slate-700 transition">
+                            Retry
+                        </button>
+                    </div>
+                } @else if (transactions.length === 0) {
+                    <!-- Empty State -->
+                    <div class="flex flex-col items-center justify-center py-20 text-center">
+                        <div class="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-receipt text-slate-300 text-2xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-700">No Transactions Yet</h3>
+                        <p class="text-sm text-slate-500 mt-1 max-w-xs">You haven't recorded any expenses. Start tracking your spending by adding a new transaction.</p>
+                        <button [routerLink]="['/transactions/new']" class="mt-6 px-6 py-2 bg-[#6B8E7B] text-white rounded-xl text-sm font-medium hover:bg-[#5A7A68] transition">
+                            <i class="fa-solid fa-plus mr-2"></i> Add Transaction
+                        </button>
+                    </div>
+                } @else {
+                    <!-- Data State -->
+                    <div class="space-y-3">
+                        @for (tx of transactions; track tx.id) {
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-white hover:bg-slate-50/80 border border-slate-100 rounded-2xl transition-colors">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-full flex items-center justify-center text-lg flex-shrink-0" [ngClass]="[tx.iconBg, tx.iconColor]">
+                                        <i class="fa-solid" [ngClass]="tx.icon"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-base font-bold text-slate-800 truncate">{{ tx.name }}</p>
+                                        <div class="flex flex-wrap items-center gap-2 mt-1">
+                                            <span class="px-2 py-0.5 text-[10px] font-medium rounded-full" [ngClass]="tx.tagStyle">{{ tx.tag }}</span>
+                                            <span class="text-xs text-slate-400"><i class="fa-solid fa-wallet mr-1"></i> {{ tx.walletName }}</span>
+                                            <span class="text-xs text-slate-400 hidden sm:inline">•</span>
+                                            <span class="text-xs text-slate-400"><i class="fa-regular fa-calendar mr-1"></i> {{ tx.date | date:'mediumDate' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center">
+                                    <span class="text-xs text-slate-400 sm:hidden"><i class="fa-regular fa-calendar mr-1"></i> {{ tx.date | date:'shortDate' }}</span>
+                                    <p class="text-lg font-bold text-slate-800 whitespace-nowrap">- ฿{{ tx.amount | number:'1.2-2' }}</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { TransactionService, Transaction } from '../../../core/services/transaction.service';
 
 interface MappedTransaction {
@@ -15,7 +16,7 @@ interface MappedTransaction {
 
 @Component({
   selector: 'app-recent-transactions',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './recent-transactions.html',
   styleUrl: './recent-transactions.scss'
 })

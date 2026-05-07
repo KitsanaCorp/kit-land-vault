@@ -8,6 +8,7 @@ export const routes: Routes = [
   },
   {
     path: '',
+    pathMatch: 'full',
     loadComponent: () => import('./features/dashboard/dashboard').then(m => m.Dashboard),
     canActivate: [authGuard]
   },
@@ -16,6 +17,12 @@ export const routes: Routes = [
     loadComponent: () => import('./features/transactions/transaction-form/transaction-form').then(m => m.TransactionForm),
     canActivate: [authGuard]
   },
+  {
+    path: 'transactions',
+    loadComponent: () => import('./features/transactions/transaction-history/transaction-history').then(m => m.TransactionHistory),
+    canActivate: [authGuard]
+  },
+
   {
     path: '**',
     redirectTo: ''
