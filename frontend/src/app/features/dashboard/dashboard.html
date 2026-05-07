@@ -10,16 +10,28 @@
 
         <!-- ── Top Row Grid ────────────────────────────── -->
         <div class="grid grid-cols-1 lg:grid-cols-12 lg:grid-rows-2 gap-4 lg:gap-6 mb-4 lg:mb-6">
-            <app-daily-budget />
-            <app-new-transaction-btn />
-            <app-bucket-summary />
-            <app-partner-settlement />
+            <div class="order-1 lg:order-none col-span-1 lg:col-span-3 lg:row-span-2 flex flex-col h-full">
+                <app-daily-budget class="flex-1 block" />
+            </div>
+            <div class="order-2 lg:order-none col-span-1 lg:col-span-3 lg:col-start-10 lg:row-start-1 flex flex-col h-full">
+                <app-new-transaction-btn class="flex-1 block" />
+            </div>
+            <div class="order-3 lg:order-none col-span-1 lg:col-span-6 lg:row-span-2 lg:col-start-4 lg:row-start-1 flex flex-col h-full">
+                <app-bucket-summary class="flex-1 block" />
+            </div>
+            <div class="order-4 lg:order-none col-span-1 lg:col-span-3 lg:col-start-10 lg:row-start-2 flex flex-col h-full">
+                <app-partner-settlement class="flex-1 block" />
+            </div>
         </div>
 
         <!-- ── Bottom Row Grid ─────────────────────────── -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
-            <app-balance-chart />
-            <app-recent-transactions />
+            <div class="col-span-1 lg:col-span-7 flex flex-col h-full">
+                <app-balance-chart class="flex-1 block" />
+            </div>
+            <div class="col-span-1 lg:col-span-5 flex flex-col h-full">
+                <app-recent-transactions class="flex-1 block" />
+            </div>
         </div>
 
     </main>

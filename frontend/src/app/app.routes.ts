@@ -12,6 +12,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'transactions/new',
+    loadComponent: () => import('./features/transactions/transaction-form/transaction-form').then(m => m.TransactionForm),
+    canActivate: [authGuard]
+  },
+  {
     path: '**',
     redirectTo: ''
   }

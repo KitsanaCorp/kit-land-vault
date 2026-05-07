@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WalletService, Wallet, DailyBudgetInfo } from '../../../core/services/wallet.service';
 
@@ -20,7 +20,7 @@ export class DailyBudget implements OnInit {
   error = false;
   noWallet = false;
 
-  constructor(private walletService: WalletService) {}
+  constructor(private walletService: WalletService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     // First get wallets, find the DAILY one, then get its budget info
@@ -37,15 +37,17 @@ export class DailyBudget implements OnInit {
               this.daysRemaining = info.daysRemaining;
               this.updateStatus();
               this.loading = false;
+              this.cdr.markForCheck();
             },
-            error: () => { this.loading = false; this.error = true; }
+            error: () => { this.loading = false; this.error = true; this.cdr.markForCheck(); }
           });
         } else {
           this.loading = false;
           this.noWallet = true;
+          this.cdr.markForCheck();
         }
       },
-      error: () => { this.loading = false; this.error = true; }
+      error: () => { this.loading = false; this.error = true; this.cdr.markForCheck(); }
     });
   }
 

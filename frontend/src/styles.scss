@@ -12,18 +12,20 @@ body {
   color: #334155;
 }
 
-/* Cozy Card — soft neumorphism */
-.cozy-card {
-  background: #FFFFFF;
-  border-radius: 1.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0,0,0,0.02);
-  border: 1px solid rgba(226, 232, 240, 0.6);
-}
+@layer components {
+  /* Cozy Card — soft neumorphism */
+  .cozy-card {
+    background: #FFFFFF;
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0,0,0,0.02);
+    border: 1px solid rgba(226, 232, 240, 0.6);
+  }
 
-/* Sidebar menu items */
-.menu-item.active { background-color: #6B8E7B; color: white; }
-.menu-item { color: #64748B; transition: all 0.2s; }
-.menu-item:hover:not(.active) { background-color: #E2E8F0; }
+  /* Sidebar menu items */
+  .menu-item.active { background-color: #6B8E7B; color: white; }
+  .menu-item { color: #64748B; transition: all 0.2s; }
+  .menu-item:hover:not(.active) { background-color: #E2E8F0; }
+}
 
 /* Hide scrollbar utility */
 .no-scrollbar::-webkit-scrollbar { display: none; }

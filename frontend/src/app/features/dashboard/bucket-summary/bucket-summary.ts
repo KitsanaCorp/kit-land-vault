@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WalletService, Wallet } from '../../../core/services/wallet.service';
 
@@ -32,7 +32,7 @@ export class BucketSummary implements OnInit {
   error = false;
   totalBalance = 0;
 
-  constructor(private walletService: WalletService) {}
+  constructor(private walletService: WalletService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.walletService.getWallets().subscribe({
@@ -45,10 +45,12 @@ export class BucketSummary implements OnInit {
         }));
         this.totalBalance = wallets.reduce((sum, w) => sum + w.balance, 0);
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.loading = false;
         this.error = true;
+        this.cdr.markForCheck();
       }
     });
   }
