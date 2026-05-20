@@ -1,6 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WalletService, Wallet, DailyBudgetInfo } from '../../../core/services/wallet.service';
+import { DashboardEventService } from '../../../core/services/dashboard-event.service';
 
 @Component({
   selector: 'app-daily-budget',
@@ -14,16 +16,35 @@ export class DailyBudget implements OnInit {
   remaining = 0;
   reserveAmount = 0;
   daysRemaining = 0;
+  spent = 0;
   status = 'Good';
   statusColor = '#22c55e';
   loading = true;
   error = false;
   noWallet = false;
 
-  constructor(private walletService: WalletService, private cdr: ChangeDetectorRef) {}
+  private destroyRef = inject(DestroyRef);
+
+  constructor(
+    private walletService: WalletService,
+    private dashboardEvents: DashboardEventService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
-    // First get wallets, find the DAILY one, then get its budget info
+    this.loadBudget();
+
+    // Auto-refresh when a transaction is added or a wallet is updated
+    this.dashboardEvents.transactionAdded$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadBudget());
+
+    this.dashboardEvents.walletUpdated$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadBudget());
+  }
+
+  loadBudget() {
     this.walletService.getWallets().subscribe({
       next: (wallets) => {
         const dailyWallet = wallets.find(w => w.accountRole === 'DAILY');
@@ -35,6 +56,7 @@ export class DailyBudget implements OnInit {
               this.remaining = info.remaining;
               this.reserveAmount = info.reserveAmount;
               this.daysRemaining = info.daysRemaining;
+              this.spent = info.spent;
               this.updateStatus();
               this.loading = false;
               this.cdr.markForCheck();

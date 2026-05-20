@@ -3,8 +3,10 @@ package com.kitlandvault.backend.services;
 import com.kitlandvault.backend.dto.DailyBudgetResponse;
 import com.kitlandvault.backend.dto.WalletRequest;
 import com.kitlandvault.backend.dto.WalletResponse;
+import com.kitlandvault.backend.entities.Transaction;
 import com.kitlandvault.backend.entities.User;
 import com.kitlandvault.backend.entities.Wallet;
+import com.kitlandvault.backend.repositories.TransactionRepository;
 import com.kitlandvault.backend.repositories.UserRepository;
 import com.kitlandvault.backend.repositories.WalletRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ public class WalletService {
 
     private final WalletRepository walletRepository;
     private final UserRepository userRepository;
+    private final TransactionRepository transactionRepository;
 
     public List<WalletResponse> getWalletsByUser(Long userId) {
         return walletRepository.findByUserId(userId).stream()
@@ -62,18 +65,30 @@ public class WalletService {
         int dayOfMonth = today.getDayOfMonth();
         int daysRemaining = totalDays - dayOfMonth + 1; // including today
 
-        // Deduct reserve (e.g., ฿3,000 for groceries) before calculating daily allowance
+        // Monthly budget ceiling
+        BigDecimal totalBudget = wallet.getDailyBudget().multiply(BigDecimal.valueOf(totalDays));
+
+        // Reserve amount (e.g. groceries set aside)
         BigDecimal reserve = wallet.getReserveAmount() != null
                 ? wallet.getReserveAmount() : BigDecimal.ZERO;
-        BigDecimal spendableBalance = wallet.getBalance().subtract(reserve);
-        if (spendableBalance.compareTo(BigDecimal.ZERO) < 0) {
-            spendableBalance = BigDecimal.ZERO;
+
+        // Actual spent this month — sum of real transactions from this wallet
+        LocalDate firstDayOfMonth = currentMonth.atDay(1);
+        List<Transaction> monthlyTransactions = transactionRepository
+                .findByWalletIdAndTransactionDateBetween(walletId, firstDayOfMonth, today);
+        BigDecimal spent = monthlyTransactions.stream()
+                .map(Transaction::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // Budget remaining = totalBudget - spent (budget tracking, not cash balance)
+        BigDecimal budgetRemaining = totalBudget.subtract(reserve).subtract(spent);
+        if (budgetRemaining.compareTo(BigDecimal.ZERO) < 0) {
+            budgetRemaining = BigDecimal.ZERO;
         }
 
-        BigDecimal totalBudget = wallet.getDailyBudget().multiply(BigDecimal.valueOf(totalDays));
-        BigDecimal spent = totalBudget.subtract(spendableBalance);
+        // Daily rate = how much budget is left to spend per remaining day
         BigDecimal dailyRate = daysRemaining > 0
-                ? spendableBalance.divide(BigDecimal.valueOf(daysRemaining), 2, RoundingMode.HALF_UP)
+                ? budgetRemaining.divide(BigDecimal.valueOf(daysRemaining), 2, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO;
 
         return DailyBudgetResponse.builder()
@@ -83,7 +98,7 @@ public class WalletService {
                 .totalBudget(totalBudget)
                 .reserveAmount(reserve)
                 .spent(spent)
-                .remaining(spendableBalance)
+                .remaining(budgetRemaining)
                 .dailyRate(dailyRate)
                 .daysRemaining(daysRemaining)
                 .build();

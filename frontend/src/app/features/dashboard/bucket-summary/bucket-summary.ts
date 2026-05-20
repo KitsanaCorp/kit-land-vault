@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { WalletService, Wallet } from '../../../core/services/wallet.service';
+import { DashboardEventService } from '../../../core/services/dashboard-event.service';
 
 const ROLE_LABELS: Record<string, string> = {
   TRANSIT: 'Transit',
@@ -58,7 +59,7 @@ export class BucketSummary implements OnInit {
   palette = PALETTE_COLORS;
   originalWallets: Wallet[] = [];
 
-  constructor(private walletService: WalletService, private cdr: ChangeDetectorRef) {}
+  constructor(private walletService: WalletService, private dashboardEvents: DashboardEventService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.loadWallets();
@@ -150,7 +151,8 @@ export class BucketSummary implements OnInit {
       name: this.formName,
       color: this.formColor,
       dailyBudget: this.formDailyBudget,
-      accountRole: this.formRole
+      accountRole: this.formRole,
+      balance: this.formBalance
     };
 
     if (this.editingWallet) {
@@ -159,6 +161,7 @@ export class BucketSummary implements OnInit {
           this.loadWallets();
           this.isFormOpen = false;
           this.editingWallet = null;
+          this.dashboardEvents.emitWalletUpdated();
           this.cdr.markForCheck();
         }
       });
@@ -168,6 +171,7 @@ export class BucketSummary implements OnInit {
         next: () => {
           this.loadWallets();
           this.isFormOpen = false;
+          this.dashboardEvents.emitWalletUpdated();
           this.cdr.markForCheck();
         }
       });
@@ -181,6 +185,7 @@ export class BucketSummary implements OnInit {
           this.loadWallets();
           this.isFormOpen = false;
           this.editingWallet = null;
+          this.dashboardEvents.emitWalletUpdated();
           this.cdr.markForCheck();
         }
       });

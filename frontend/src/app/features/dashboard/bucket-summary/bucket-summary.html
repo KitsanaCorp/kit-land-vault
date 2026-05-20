@@ -144,8 +144,8 @@
                             <!-- Initial Balance (Editable ONLY on create) -->
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Initial Balance (฿)</label>
-                                <input type="number" [(ngModel)]="formBalance" [disabled]="!!editingWallet" placeholder="0" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 disabled:opacity-60 focus:bg-white focus:ring-2 focus:ring-[#6B8E7B]/20 focus:border-[#6B8E7B] text-slate-700 font-semibold text-sm outline-none transition-all" />
-                                <p *ngIf="editingWallet" class="text-[9px] text-slate-400 mt-1">Note: Balance must be modified via Transactions</p>
+                                <input type="number" [(ngModel)]="formBalance" placeholder="0" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-[#6B8E7B]/20 focus:border-[#6B8E7B] text-slate-700 font-semibold text-sm outline-none transition-all" />
+                                <p *ngIf="editingWallet" class="text-[9px] text-slate-400 mt-1">เปลี่ยนยอดจะมีผลทันที</p>
                             </div>
 
                             <!-- Daily Budget (Optional) -->

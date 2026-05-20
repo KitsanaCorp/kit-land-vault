@@ -2,10 +2,10 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
 import { CategoryService, Category } from '../../../core/services/category.service';
 import { WalletService, Wallet } from '../../../core/services/wallet.service';
 import { TransactionService, TransactionRequest } from '../../../core/services/transaction.service';
+import { DashboardEventService } from '../../../core/services/dashboard-event.service';
 
 @Component({
   selector: 'app-transaction-form',
@@ -33,6 +33,7 @@ export class TransactionForm implements OnInit {
     private categoryService: CategoryService,
     private walletService: WalletService,
     private transactionService: TransactionService,
+    private dashboardEvents: DashboardEventService,
     private location: Location,
     private router: Router,
     private cdr: ChangeDetectorRef
@@ -112,6 +113,7 @@ export class TransactionForm implements OnInit {
     this.transactionService.createTransaction(req).subscribe({
       next: () => {
         this.saving = false;
+        this.dashboardEvents.emitTransactionAdded();
         // Go back to dashboard after saving
         this.router.navigate(['/']);
       },
