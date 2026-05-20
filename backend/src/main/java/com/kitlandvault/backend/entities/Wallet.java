@@ -20,7 +20,8 @@ public class Wallet {
         BILLS,          // LHB You — fixed costs, maintains min balance
         CAR_LOAN,       // SCB — strictly for car installments
         SINKING_FUND,   // Kept — high-interest reserve with sub-goals
-        INVESTMENT      // Dime — holding for stocks/index funds
+        INVESTMENT,     // Dime — holding for stocks/index funds
+        CUSTOM          // Custom user-defined wallet
     }
 
     @Id
@@ -37,6 +38,19 @@ public class Wallet {
     @Enumerated(EnumType.STRING)
     @Column(name = "account_role", nullable = false, length = 20)
     private AccountRole accountRole;
+
+    @Column(name = "color", length = 7)
+    private String color;
+
+    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private java.util.List<WalletGoal> goals;
+
+    @OneToMany(mappedBy = "wallet")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private java.util.List<Transaction> transactions;
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal balance;
@@ -61,6 +75,13 @@ public class Wallet {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @PreRemove
+    private void preRemove() {
+        if (transactions != null) {
+            transactions.forEach(t -> t.setWallet(null));
+        }
+    }
 
     @PrePersist
     protected void onCreate() {

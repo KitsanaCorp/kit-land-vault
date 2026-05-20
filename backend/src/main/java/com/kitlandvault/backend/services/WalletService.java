@@ -1,8 +1,11 @@
 package com.kitlandvault.backend.services;
 
 import com.kitlandvault.backend.dto.DailyBudgetResponse;
+import com.kitlandvault.backend.dto.WalletRequest;
 import com.kitlandvault.backend.dto.WalletResponse;
+import com.kitlandvault.backend.entities.User;
 import com.kitlandvault.backend.entities.Wallet;
+import com.kitlandvault.backend.repositories.UserRepository;
 import com.kitlandvault.backend.repositories.WalletRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +22,7 @@ import java.util.List;
 public class WalletService {
 
     private final WalletRepository walletRepository;
+    private final UserRepository userRepository;
 
     public List<WalletResponse> getWalletsByUser(Long userId) {
         return walletRepository.findByUserId(userId).stream()
@@ -85,11 +89,83 @@ public class WalletService {
                 .build();
     }
 
+    @Transactional
+    public WalletResponse createWallet(Long userId, WalletRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+
+        Wallet.AccountRole role = Wallet.AccountRole.CUSTOM;
+        if (request.getAccountRole() != null) {
+            try {
+                role = Wallet.AccountRole.valueOf(request.getAccountRole());
+            } catch (IllegalArgumentException e) {
+                // Default to CUSTOM
+            }
+        }
+
+        Wallet wallet = Wallet.builder()
+                .user(user)
+                .name(request.getName())
+                .accountRole(role)
+                .color(request.getColor())
+                .balance(request.getBalance() != null ? request.getBalance() : BigDecimal.ZERO)
+                .dailyBudget(request.getDailyBudget())
+                .reserveAmount(request.getReserveAmount() != null ? request.getReserveAmount() : BigDecimal.ZERO)
+                .minBalance(request.getMinBalance() != null ? request.getMinBalance() : BigDecimal.ZERO)
+                .budgetResetDay(request.getBudgetResetDay() != null ? request.getBudgetResetDay() : 1)
+                .build();
+
+        return toResponse(walletRepository.save(wallet));
+    }
+
+    @Transactional
+    public WalletResponse updateWallet(Long walletId, WalletRequest request) {
+        Wallet wallet = getWalletEntity(walletId);
+
+        if (request.getName() != null) {
+            wallet.setName(request.getName());
+        }
+        if (request.getAccountRole() != null) {
+            try {
+                wallet.setAccountRole(Wallet.AccountRole.valueOf(request.getAccountRole()));
+            } catch (IllegalArgumentException e) {
+                // Ignore
+            }
+        }
+        if (request.getColor() != null) {
+            wallet.setColor(request.getColor());
+        }
+        if (request.getBalance() != null) {
+            wallet.setBalance(request.getBalance());
+        }
+        if (request.getDailyBudget() != null) {
+            wallet.setDailyBudget(request.getDailyBudget());
+        }
+        if (request.getReserveAmount() != null) {
+            wallet.setReserveAmount(request.getReserveAmount());
+        }
+        if (request.getMinBalance() != null) {
+            wallet.setMinBalance(request.getMinBalance());
+        }
+        if (request.getBudgetResetDay() != null) {
+            wallet.setBudgetResetDay(request.getBudgetResetDay());
+        }
+
+        return toResponse(walletRepository.save(wallet));
+    }
+
+    @Transactional
+    public void deleteWallet(Long walletId) {
+        Wallet wallet = getWalletEntity(walletId);
+        walletRepository.delete(wallet);
+    }
+
     private WalletResponse toResponse(Wallet w) {
         return WalletResponse.builder()
                 .id(w.getId())
                 .name(w.getName())
                 .accountRole(w.getAccountRole() != null ? w.getAccountRole().name() : null)
+                .color(w.getColor())
                 .balance(w.getBalance())
                 .dailyBudget(w.getDailyBudget())
                 .reserveAmount(w.getReserveAmount())

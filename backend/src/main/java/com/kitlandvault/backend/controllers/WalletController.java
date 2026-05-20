@@ -1,6 +1,7 @@
 package com.kitlandvault.backend.controllers;
 
 import com.kitlandvault.backend.dto.DailyBudgetResponse;
+import com.kitlandvault.backend.dto.WalletRequest;
 import com.kitlandvault.backend.dto.WalletResponse;
 import com.kitlandvault.backend.services.WalletService;
 import lombok.RequiredArgsConstructor;
@@ -24,5 +25,21 @@ public class WalletController {
     @GetMapping("/{id}/daily-budget")
     public ResponseEntity<DailyBudgetResponse> getDailyBudget(@PathVariable Long id) {
         return ResponseEntity.ok(walletService.getDailyBudget(id));
+    }
+
+    @PostMapping
+    public ResponseEntity<WalletResponse> createWallet(@RequestParam Long userId, @RequestBody WalletRequest request) {
+        return ResponseEntity.ok(walletService.createWallet(userId, request));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<WalletResponse> updateWallet(@PathVariable Long id, @RequestBody WalletRequest request) {
+        return ResponseEntity.ok(walletService.updateWallet(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteWallet(@PathVariable Long id) {
+        walletService.deleteWallet(id);
+        return ResponseEntity.noContent().build();
     }
 }

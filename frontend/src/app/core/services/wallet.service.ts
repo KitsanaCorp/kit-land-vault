@@ -7,6 +7,7 @@ export interface Wallet {
   id: number;
   name: string;
   accountRole: string;
+  color?: string;
   balance: number;
   dailyBudget: number | null;
   reserveAmount: number;
@@ -42,5 +43,17 @@ export class WalletService {
 
   getDailyBudget(walletId: number): Observable<DailyBudgetInfo> {
     return this.http.get<DailyBudgetInfo>(`${this.API_URL}/wallets/${walletId}/daily-budget`);
+  }
+
+  createWallet(wallet: Partial<Wallet>): Observable<Wallet> {
+    return this.http.post<Wallet>(`${this.API_URL}/wallets?userId=${this.userId}`, wallet);
+  }
+
+  updateWallet(id: number, wallet: Partial<Wallet>): Observable<Wallet> {
+    return this.http.put<Wallet>(`${this.API_URL}/wallets/${id}`, wallet);
+  }
+
+  deleteWallet(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/wallets/${id}`);
   }
 }

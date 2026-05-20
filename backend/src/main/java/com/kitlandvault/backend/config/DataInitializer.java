@@ -65,27 +65,19 @@ public class DataInitializer implements CommandLineRunner {
         kit = userRepository.save(kit);
         log.info("Created user: {} (id={})", kit.getUsername(), kit.getId());
 
-        // 3. Create 6 Wallets
-        Wallet bbl = createWallet(admin, "BBL", Wallet.AccountRole.TRANSIT,
-                BigDecimal.ZERO, null, null, null);
-        Wallet kasikorn = createWallet(admin, "Kasikorn", Wallet.AccountRole.DAILY,
-                new BigDecimal("18000"), new BigDecimal("600"), new BigDecimal("3000"), null);
-        Wallet lhbYou = createWallet(admin, "LHB You", Wallet.AccountRole.BILLS,
-                new BigDecimal("35000"), null, null, new BigDecimal("10000"));
-        Wallet scb = createWallet(admin, "SCB", Wallet.AccountRole.CAR_LOAN,
-                new BigDecimal("14283"), null, null, null);
-        Wallet kept = createWallet(admin, "Kept", Wallet.AccountRole.SINKING_FUND,
-                new BigDecimal("80000"), null, null, null);
-        Wallet dime = createWallet(admin, "Dime", Wallet.AccountRole.INVESTMENT,
-                new BigDecimal("12000"), null, null, null);
+        // 3. Create 2 Template Wallets
+        Wallet daily = createWallet(admin, "บัญชีประจำวัน", Wallet.AccountRole.DAILY,
+                new BigDecimal("18000"), new BigDecimal("600"), new BigDecimal("3000"), null, "#6B8E7B");
+        Wallet savings = createWallet(admin, "บัญชีเงินเก็บ", Wallet.AccountRole.SINKING_FUND,
+                new BigDecimal("80000"), null, null, null, "#5D9C96");
 
-        log.info("Created 6 wallets: BBL, Kasikorn, LHB You, SCB, Kept, Dime");
+        log.info("Created 2 template wallets: บัญชีประจำวัน, บัญชีเงินเก็บ");
 
-        // 4. Create Wallet Goals for Kept (Sinking Fund)
-        createGoal(kept, "Emergency - Mother Surgery", new BigDecimal("30000"), new BigDecimal("15000"), 1);
-        createGoal(kept, "Annual HOA & Insurance", new BigDecimal("12000"), new BigDecimal("8000"), 2);
-        createGoal(kept, "Car Maintenance", new BigDecimal("10000"), new BigDecimal("5000"), 3);
-        log.info("Created 3 wallet goals for Kept");
+        // 4. Create Wallet Goals for บัญชีเงินเก็บ
+        createGoal(savings, "Emergency - Mother Surgery", new BigDecimal("30000"), new BigDecimal("15000"), 1);
+        createGoal(savings, "Annual HOA & Insurance", new BigDecimal("12000"), new BigDecimal("8000"), 2);
+        createGoal(savings, "Car Maintenance", new BigDecimal("10000"), new BigDecimal("5000"), 3);
+        log.info("Created 3 wallet goals for บัญชีเงินเก็บ");
 
         // 5. Create Categories
         // Expense categories
@@ -117,11 +109,12 @@ public class DataInitializer implements CommandLineRunner {
 
     private Wallet createWallet(User user, String name, Wallet.AccountRole role,
                                 BigDecimal balance, BigDecimal dailyBudget,
-                                BigDecimal reserveAmount, BigDecimal minBalance) {
+                                BigDecimal reserveAmount, BigDecimal minBalance, String color) {
         Wallet wallet = Wallet.builder()
                 .user(user)
                 .name(name)
                 .accountRole(role)
+                .color(color)
                 .balance(balance)
                 .dailyBudget(dailyBudget)
                 .reserveAmount(reserveAmount != null ? reserveAmount : BigDecimal.ZERO)

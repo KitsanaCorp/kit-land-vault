@@ -1,1 +1,46 @@
 :host { display: contents; }
+
+/* ── Modal Entrance Animation ─────────────────────────── */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.scale-in-animation {
+  animation: scaleIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.slide-in-animation {
+  animation: slideIn 0.18s ease-out forwards;
+}
+
+/* ── Active Color Swatch ───────────────────────────────── */
+.active-color-swatch {
+  outline: 3px solid #6B8E7B;
+  outline-offset: 2px;
+  transform: scale(1.15);
+  box-shadow: 0 0 0 2px white, 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ── Form input focus polish ──────────────────────────── */
+input:focus,
+select:focus {
+  box-shadow: 0 0 0 3px rgba(107, 142, 123, 0.12);
+}

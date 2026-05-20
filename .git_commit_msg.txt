@@ -1,0 +1,16 @@
+feat(wallet): dynamic bucket management with predefined color palette
+
+- Add CRUD endpoints POST/PUT/DELETE /api/wallets in WalletController
+- Add color field to Wallet entity and WalletResponse DTO
+- Add WalletRequest DTO for create/update operations
+- Add @PreRemove hook to nullify wallet_id on linked transactions on delete
+- Add AccountRole.CUSTOM enum value
+- Seed exactly 2 template wallets: บัญชีประจำวัน and บัญชีเงินเก็บ
+- Add wallet CRUD HTTP methods to Angular WalletService
+- Build full Manage Buckets modal in bucket-summary component
+- Glassmorphic modal with backdrop-blur and scale-in animation
+- Wallet list with inline Edit/Delete actions
+- Add/Edit form with name, initial balance, daily budget, role selector
+- Predefined premium 8-color palette swatches (Emerald, Teal, Indigo, Violet, Rose, Amber, Slate, Cyan)
+- Active swatch indicator with ring outline and scale animation
+- Smooth slide-in form transition animation

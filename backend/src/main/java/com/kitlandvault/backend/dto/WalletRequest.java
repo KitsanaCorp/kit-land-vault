@@ -1,6 +1,9 @@
 package com.kitlandvault.backend.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
@@ -8,8 +11,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class WalletResponse {
-    private Long id;
+public class WalletRequest {
     private String name;
     private String accountRole;
     private String color;
