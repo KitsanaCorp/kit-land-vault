@@ -1,0 +1,131 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+    <div class="bg-white rounded-3xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+        
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-[#E5B25D]/20 text-[#D4A04C] flex items-center justify-center">
+                    <i class="fa-solid fa-handshake-angle text-lg"></i>
+                </div>
+                <h2 class="text-lg font-bold text-slate-800">Clear Debt</h2>
+            </div>
+            <button (click)="close.emit()" class="text-slate-400 hover:text-slate-600 transition w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-6 space-y-6">
+            
+            <!-- Error message -->
+            @if (error) {
+                <div class="p-3 bg-red-50 text-red-600 text-sm rounded-xl border border-red-100">
+                    <i class="fa-solid fa-circle-exclamation mr-1"></i> {{ error }}
+                </div>
+            }
+
+            <!-- Direction Toggle -->
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Direction</label>
+                <div class="flex p-1 bg-slate-100 rounded-xl">
+                    <button 
+                        (click)="onDirectionChange(false)"
+                        [class.bg-white]="!isPartnerPaying"
+                        [class.shadow-sm]="!isPartnerPaying"
+                        [class.text-slate-800]="!isPartnerPaying"
+                        [class.text-slate-500]="isPartnerPaying"
+                        class="flex-1 py-2 text-sm font-medium rounded-lg transition-all">
+                        I am paying
+                    </button>
+                    <button 
+                        (click)="onDirectionChange(true)"
+                        [class.bg-white]="isPartnerPaying"
+                        [class.shadow-sm]="isPartnerPaying"
+                        [class.text-slate-800]="isPartnerPaying"
+                        [class.text-slate-500]="!isPartnerPaying"
+                        class="flex-1 py-2 text-sm font-medium rounded-lg transition-all">
+                        Partner paid me
+                    </button>
+                </div>
+            </div>
+
+            <!-- Suggestion / Info -->
+            <div class="bg-amber-50 border border-amber-100 p-3 rounded-xl flex items-start gap-3">
+                <i class="fa-solid fa-circle-info text-amber-500 mt-0.5"></i>
+                <div>
+                    @if (isPartnerPaying) {
+                        <p class="text-sm font-medium text-amber-800">Partner owes you: ฿{{ partnerOwes | number:'1.2-2' }}</p>
+                        <p class="text-xs text-amber-600 mt-1">Record the amount they returned to you.</p>
+                    } @else {
+                        <p class="text-sm font-medium text-amber-800">You owe partner: ฿{{ youOwe | number:'1.2-2' }}</p>
+                        <p class="text-xs text-amber-600 mt-1">Record the amount you paid them back.</p>
+                    }
+                </div>
+            </div>
+
+            <!-- Amount -->
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Amount to Clear (฿)</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <span class="text-slate-400 font-bold">฿</span>
+                    </div>
+                    <input 
+                        type="number" 
+                        [(ngModel)]="amount"
+                        class="w-full pl-8 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-[#E5B25D] focus:border-transparent transition"
+                        placeholder="0.00"
+                        min="1"
+                    >
+                </div>
+            </div>
+
+            <!-- Target Wallet -->
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Target Wallet</label>
+                <select 
+                    [(ngModel)]="targetWalletId"
+                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-[#E5B25D] focus:border-transparent transition appearance-none">
+                    <option [ngValue]="0" disabled>Select a wallet</option>
+                    @for (w of wallets; track w.id) {
+                        <option [ngValue]="w.id">{{ w.name }} (฿{{ w.balance | number }})</option>
+                    }
+                </select>
+                <p class="text-[10px] text-slate-400 mt-1 ml-1"><i class="fa-solid fa-arrow-turn-down fa-rotate-90 mr-1"></i> Money will be added here</p>
+            </div>
+
+            <!-- Note -->
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Note (Optional)</label>
+                <input 
+                    type="text" 
+                    [(ngModel)]="note"
+                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#E5B25D] focus:border-transparent transition"
+                    placeholder="e.g. Cleared dinner debt"
+                >
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+            <button 
+                (click)="close.emit()"
+                [disabled]="submitting"
+                class="px-5 py-2.5 rounded-xl font-bold text-slate-600 hover:bg-slate-200 transition">
+                Cancel
+            </button>
+            <button 
+                (click)="submit()"
+                [disabled]="submitting || amount <= 0 || !targetWalletId"
+                class="px-6 py-2.5 rounded-xl font-bold text-white bg-[#E5B25D] hover:bg-[#D4A04C] disabled:opacity-50 transition shadow-md shadow-[#E5B25D]/20 flex items-center">
+                @if (submitting) {
+                    <i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Processing...
+                } @else {
+                    Confirm <i class="fa-solid fa-check ml-2"></i>
+                }
+            </button>
+        </div>
+
+    </div>
+</div>

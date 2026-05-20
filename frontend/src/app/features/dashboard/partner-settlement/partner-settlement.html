@@ -8,7 +8,18 @@
             <span>Partner owes:</span> <span class="font-bold">฿{{ partnerOwes | number }}</span>
         </div>
     </div>
-    <button class="w-full bg-[#E5B25D] text-white py-2 rounded-lg text-sm font-bold hover:bg-[#D4A04C] transition shadow-sm">
+    <button 
+        (click)="openRepayModal()"
+        class="w-full bg-[#E5B25D] text-white py-2 rounded-lg text-sm font-bold hover:bg-[#D4A04C] transition shadow-sm">
         Clear Debt
     </button>
 </div>
+
+@if (showRepayModal) {
+    <app-repay-modal 
+        [youOwe]="youOwe" 
+        [partnerOwes]="partnerOwes"
+        (close)="closeRepayModal()"
+        (success)="onRepaySuccess()"
+    />
+}
