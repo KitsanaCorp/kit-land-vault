@@ -18,6 +18,7 @@ export class TransactionForm implements OnInit {
   categories: Category[] = [];
   wallets: Wallet[] = [];
   
+  transactionType: 'EXPENSE' | 'INCOME' = 'EXPENSE';
   loadingData = true;
   saving = false;
   errorMessage = '';
@@ -50,49 +51,54 @@ export class TransactionForm implements OnInit {
   }
 
   ngOnInit() {
-    console.log('ngOnInit started');
     let catsLoaded = false;
     let walletsLoaded = false;
 
     const checkDone = () => {
-      console.log('checkDone', { catsLoaded, walletsLoaded });
       if (catsLoaded && walletsLoaded) {
         this.loadingData = false;
         this.cdr.detectChanges();
       }
     };
 
-    console.log('Fetching categories...');
     this.categoryService.getCategories().subscribe({
       next: (res) => {
-        console.log('Categories fetched:', res);
         this.categories = res || [];
         catsLoaded = true;
         checkDone();
       },
       error: (err) => {
-        console.error('Error fetching categories:', err);
         this.errorMessage = 'Failed to load categories.';
         catsLoaded = true;
         checkDone();
       }
     });
 
-    console.log('Fetching wallets...');
     this.walletService.getWallets().subscribe({
       next: (res) => {
-        console.log('Wallets fetched:', res);
         this.wallets = res || [];
         walletsLoaded = true;
         checkDone();
       },
       error: (err) => {
-        console.error('Error fetching wallets:', err);
         this.errorMessage = 'Failed to load wallets.';
         walletsLoaded = true;
         checkDone();
       }
     });
+  }
+
+  get filteredCategories(): Category[] {
+    return this.categories.filter(cat => cat.transactionType === this.transactionType);
+  }
+
+  setTransactionType(type: 'EXPENSE' | 'INCOME') {
+    this.transactionType = type;
+    this.form.patchValue({
+      categoryId: '',
+      splitType: 'PERSONAL'
+    });
+    this.cdr.markForCheck();
   }
 
   goBack() {
@@ -114,7 +120,6 @@ export class TransactionForm implements OnInit {
       next: () => {
         this.saving = false;
         this.dashboardEvents.emitTransactionAdded();
-        // Go back to dashboard after saving
         this.router.navigate(['/']);
       },
       error: (err) => {

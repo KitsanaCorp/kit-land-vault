@@ -33,27 +33,34 @@ public class TransactionService {
                 .orElseThrow(() -> new RuntimeException("Category not found"));
         Wallet wallet = walletService.getWalletEntity(request.getWalletId());
 
-        Transaction.SplitType splitType = Transaction.SplitType.valueOf(
-                request.getSplitType() != null ? request.getSplitType() : "PERSONAL");
+        boolean isIncome = Category.TransactionType.INCOME.equals(category.getTransactionType());
+        Transaction.SplitType splitType = isIncome 
+                ? Transaction.SplitType.PERSONAL 
+                : Transaction.SplitType.valueOf(request.getSplitType() != null ? request.getSplitType() : "PERSONAL");
 
         BigDecimal amount = request.getAmount();
         BigDecimal myShare;
         BigDecimal partnerShare;
 
-        // Calculate split
-        switch (splitType) {
-            case SHARED:
-                myShare = amount.divide(BigDecimal.valueOf(2), 2, RoundingMode.HALF_UP);
-                partnerShare = amount.subtract(myShare);
-                break;
-            case ON_BEHALF:
-                myShare = BigDecimal.ZERO;
-                partnerShare = amount;
-                break;
-            default: // PERSONAL
-                myShare = amount;
-                partnerShare = BigDecimal.ZERO;
-                break;
+        if (isIncome) {
+            myShare = amount;
+            partnerShare = BigDecimal.ZERO;
+        } else {
+            // Calculate split for Expense
+            switch (splitType) {
+                case SHARED:
+                    myShare = amount.divide(BigDecimal.valueOf(2), 2, RoundingMode.HALF_UP);
+                    partnerShare = amount.subtract(myShare);
+                    break;
+                case ON_BEHALF:
+                    myShare = BigDecimal.ZERO;
+                    partnerShare = amount;
+                    break;
+                default: // PERSONAL
+                    myShare = amount;
+                    partnerShare = BigDecimal.ZERO;
+                    break;
+            }
         }
 
         Transaction transaction = Transaction.builder()
@@ -71,15 +78,19 @@ public class TransactionService {
 
         transaction = transactionRepository.save(transaction);
 
-        // Deduct full amount from wallet (you physically paid it)
-        walletService.deductBalance(wallet.getId(), amount);
+        if (isIncome) {
+            // Add full amount to wallet
+            walletService.addBalance(wallet.getId(), amount);
+        } else {
+            // Deduct full amount from wallet
+            walletService.deductBalance(wallet.getId(), amount);
 
-        // If partner share exists, auto-create receivable
-        if (partnerShare.compareTo(BigDecimal.ZERO) > 0) {
-            // Get partner (wife) — for simplicity, get another user in same family
-            User partner = getPartnerInFamily(user);
-            if (partner != null) {
-                settlementService.createReceivable(user, partner, transaction, partnerShare);
+            // If partner share exists, auto-create receivable
+            if (partnerShare.compareTo(BigDecimal.ZERO) > 0) {
+                User partner = getPartnerInFamily(user);
+                if (partner != null) {
+                    settlementService.createReceivable(user, partner, transaction, partnerShare);
+                }
             }
         }
 
@@ -126,6 +137,7 @@ public class TransactionService {
                 .partnerShare(tx.getPartnerShare())
                 .transactionDate(tx.getTransactionDate())
                 .description(tx.getDescription())
+                .transactionType(tx.getCategory().getTransactionType() != null ? tx.getCategory().getTransactionType().name() : null)
                 .build();
     }
 }

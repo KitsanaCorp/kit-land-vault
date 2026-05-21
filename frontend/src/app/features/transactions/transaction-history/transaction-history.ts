@@ -16,6 +16,7 @@ interface MappedTransaction {
   tagStyle: string;
   walletName: string;
   splitType: string;
+  isIncome: boolean;
 }
 
 @Component({
@@ -63,6 +64,7 @@ export class TransactionHistory implements OnInit {
   }
 
   private mapTransaction(tx: Transaction): MappedTransaction {
+    const isIncome = tx.transactionType === 'INCOME';
     const isFood = tx.categoryName.toLowerCase().includes('food') || tx.categoryName.toLowerCase().includes('dining');
     const isTransport = tx.categoryName.toLowerCase().includes('transport') || tx.categoryName.toLowerCase().includes('bts');
     const isShopping = tx.categoryName.toLowerCase().includes('shop') || tx.categoryName.toLowerCase().includes('groceries');
@@ -71,7 +73,11 @@ export class TransactionHistory implements OnInit {
     let iconBg = 'bg-slate-100';
     let iconColor = 'text-slate-500';
     
-    if (isFood) {
+    if (isIncome) {
+      icon = 'fa-arrow-trend-up';
+      iconBg = 'bg-emerald-100';
+      iconColor = 'text-emerald-600';
+    } else if (isFood) {
       icon = 'fa-burger';
       iconBg = 'bg-orange-100';
       iconColor = 'text-orange-500';
@@ -90,6 +96,8 @@ export class TransactionHistory implements OnInit {
       tagStyle = 'bg-indigo-100 text-indigo-700';
     } else if (tx.splitType === 'ON_BEHALF') {
       tagStyle = 'bg-amber-100 text-amber-700';
+    } else if (isIncome) {
+      tagStyle = 'bg-emerald-100 text-emerald-700';
     }
 
     return {
@@ -103,7 +111,8 @@ export class TransactionHistory implements OnInit {
       tag: tx.splitType === 'PERSONAL' ? tx.categoryName : (tx.splitType === 'SHARED' ? 'Shared 50/50' : 'On Behalf'),
       tagStyle,
       walletName: tx.walletName || 'Unknown Wallet',
-      splitType: tx.splitType
+      splitType: tx.splitType,
+      isIncome
     };
   }
 }

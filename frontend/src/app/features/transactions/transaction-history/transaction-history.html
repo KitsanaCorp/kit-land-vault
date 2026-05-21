@@ -86,7 +86,9 @@
                                 </div>
                                 <div class="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center">
                                     <span class="text-xs text-slate-400 sm:hidden"><i class="fa-regular fa-calendar mr-1"></i> {{ tx.date | date:'shortDate' }}</span>
-                                    <p class="text-lg font-bold text-slate-800 whitespace-nowrap">- ฿{{ tx.amount | number:'1.2-2' }}</p>
+                                    <p class="text-lg font-bold whitespace-nowrap" [ngClass]="tx.isIncome ? 'text-emerald-600' : 'text-slate-800'">
+                                        {{ tx.isIncome ? '+' : '-' }} ฿{{ tx.amount | number:'1.2-2' }}
+                                    </p>
                                 </div>
                             </div>
                         }

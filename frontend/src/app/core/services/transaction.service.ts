@@ -15,6 +15,7 @@ export interface Transaction {
   partnerShare: number;
   transactionDate: string;
   description: string;
+  transactionType?: string;
 }
 
 export interface TransactionRequest {

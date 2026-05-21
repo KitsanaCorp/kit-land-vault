@@ -14,6 +14,7 @@ interface MappedTransaction {
   tag: string;
   tagStyle: string;
   amount: number;
+  isIncome: boolean;
 }
 
 @Component({
@@ -65,8 +66,12 @@ export class RecentTransactions implements OnInit {
     let iconBg = 'bg-slate-100';
     let iconColor = 'text-slate-600';
 
+    const isIncome = tx.transactionType === 'INCOME';
+
     const cat = tx.categoryName.toLowerCase();
-    if (cat.includes('food') || cat.includes('dining') || cat.includes('buffet')) {
+    if (isIncome || cat.includes('salary') || cat.includes('income')) {
+      icon = 'fa-arrow-trend-up'; iconBg = 'bg-emerald-100'; iconColor = 'text-emerald-600';
+    } else if (cat.includes('food') || cat.includes('dining') || cat.includes('buffet')) {
       icon = 'fa-utensils'; iconBg = 'bg-orange-100'; iconColor = 'text-orange-600';
     } else if (cat.includes('groceries')) {
       icon = 'fa-cart-shopping'; iconBg = 'bg-purple-100'; iconColor = 'text-purple-600';
@@ -76,8 +81,6 @@ export class RecentTransactions implements OnInit {
       icon = 'fa-bolt'; iconBg = 'bg-yellow-100'; iconColor = 'text-yellow-600';
     } else if (cat.includes('health') || cat.includes('medical')) {
       icon = 'fa-heart-pulse'; iconBg = 'bg-red-100'; iconColor = 'text-red-600';
-    } else if (cat.includes('salary') || cat.includes('income')) {
-      icon = 'fa-arrow-down'; iconBg = 'bg-green-100'; iconColor = 'text-green-600';
     }
 
     // Fix: Match backend enum values (SHARED / ON_BEHALF)
@@ -90,6 +93,8 @@ export class RecentTransactions implements OnInit {
     } else if (tx.splitType === 'ON_BEHALF') {
       splitLabel = 'Advance';
       tagStyle = 'bg-amber-100 text-amber-700';
+    } else if (isIncome) {
+      tagStyle = 'bg-emerald-100 text-emerald-700';
     }
 
     return {
@@ -100,7 +105,8 @@ export class RecentTransactions implements OnInit {
       tagStyle,
       icon,
       iconBg,
-      iconColor
+      iconColor,
+      isIncome
     };
   }
 }

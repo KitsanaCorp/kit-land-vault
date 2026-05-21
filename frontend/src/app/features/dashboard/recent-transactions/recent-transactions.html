@@ -16,7 +16,9 @@
                         <span class="px-2 py-0.5 text-[10px] rounded-full" [ngClass]="tx.tagStyle">{{ tx.tag }}</span>
                     </div>
                 </div>
-                <p class="text-sm font-bold text-slate-800 flex-shrink-0 ml-2">- ฿{{ tx.amount | number }}</p>
+                <p class="text-sm font-bold flex-shrink-0 ml-2" [ngClass]="tx.isIncome ? 'text-emerald-600' : 'text-slate-800'">
+                    {{ tx.isIncome ? '+' : '-' }} ฿{{ tx.amount | number }}
+                </p>
             </div>
         }
     </div>

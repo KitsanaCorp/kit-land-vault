@@ -21,4 +21,5 @@ public class TransactionResponse {
     private BigDecimal partnerShare;
     private LocalDate transactionDate;
     private String description;
+    private String transactionType;
 }
