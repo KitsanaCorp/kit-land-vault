@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { WalletService, Wallet, DailyBudgetInfo } from '../../../core/services/wallet.service';
+import { WalletService, DailyBudgetInfo } from '../../../core/services/wallet.service';
 import { DashboardEventService } from '../../../core/services/dashboard-event.service';
 
 @Component({
@@ -11,12 +11,13 @@ import { DashboardEventService } from '../../../core/services/dashboard-event.se
   styleUrl: './daily-budget.scss'
 })
 export class DailyBudget implements OnInit {
-  walletName = '';
+  walletNames = '';
+  walletCount = 0;
   budgetAmount = 0;
   remaining = 0;
-  reserveAmount = 0;
+  spentThisMonth = 0;
+  totalBalance = 0;
   daysRemaining = 0;
-  spent = 0;
   status = 'Good';
   statusColor = '#22c55e';
   loading = true;
@@ -45,29 +46,26 @@ export class DailyBudget implements OnInit {
   }
 
   loadBudget() {
-    this.walletService.getWallets().subscribe({
-      next: (wallets) => {
-        const dailyWallet = wallets.find(w => w.accountRole === 'DAILY');
-        if (dailyWallet) {
-          this.walletName = dailyWallet.name;
-          this.walletService.getDailyBudget(dailyWallet.id).subscribe({
-            next: (info) => {
-              this.budgetAmount = info.dailyRate;
-              this.remaining = info.remaining;
-              this.reserveAmount = info.reserveAmount;
-              this.daysRemaining = info.daysRemaining;
-              this.spent = info.spent;
-              this.updateStatus();
-              this.loading = false;
-              this.cdr.markForCheck();
-            },
-            error: () => { this.loading = false; this.error = true; this.cdr.markForCheck(); }
-          });
-        } else {
+    this.loading = true;
+    this.walletService.getDailySummary().subscribe({
+      next: (info: DailyBudgetInfo) => {
+        if (info.walletCount === 0) {
           this.loading = false;
           this.noWallet = true;
           this.cdr.markForCheck();
+          return;
         }
+        this.walletNames = info.walletNames.join(', ');
+        this.walletCount = info.walletCount;
+        this.budgetAmount = info.dailyRate;
+        this.remaining = info.remaining;
+        this.spentThisMonth = info.spentThisMonth;
+        this.totalBalance = info.totalBalance;
+        this.daysRemaining = info.daysRemaining;
+        this.noWallet = false;
+        this.updateStatus();
+        this.loading = false;
+        this.cdr.markForCheck();
       },
       error: () => { this.loading = false; this.error = true; this.cdr.markForCheck(); }
     });

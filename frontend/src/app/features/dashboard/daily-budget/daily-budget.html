@@ -1,9 +1,9 @@
-<div class="h-full cozy-card p-6 flex flex-col justify-between">
+<div class="h-full cozy-card p-6 flex flex-col justify-between relative">
     <h2 class="text-sm font-semibold text-slate-500">Daily Budget</h2>
 
     @if (loading) {
         <!-- Loading skeleton -->
-        <div class="w-32 h-32 mt-6 rounded-full bg-slate-100 animate-pulse"></div>
+        <div class="w-32 h-32 mt-6 rounded-full bg-slate-100 animate-pulse mx-auto"></div>
         <div class="w-24 h-5 mt-4 rounded-full bg-slate-100 animate-pulse"></div>
     } @else if (error) {
         <!-- Error state -->
@@ -21,29 +21,46 @@
                 <i class="fa-solid fa-circle-info text-amber-400 text-xl"></i>
             </div>
             <p class="text-xs font-medium text-slate-600">No daily wallet</p>
-            <p class="text-[10px] text-slate-400 mt-1">Set a wallet role to "Daily"</p>
+            <p class="text-[10px] text-slate-400 mt-1">Set a wallet type to "Daily Spending"</p>
         </div>
     } @else {
         <!-- Normal state -->
-        <p class="text-[10px] text-slate-400 absolute top-5 right-5">{{ walletName }}</p>
-        <div class="relative w-32 h-32 mt-6 flex items-center justify-center rounded-full border-8 border-slate-100"
+        <p class="text-[10px] text-slate-400 absolute top-5 right-5 max-w-[100px] text-right truncate" [title]="walletNames">{{ walletNames }}</p>
+
+        <!-- Circular indicator -->
+        <div class="relative w-32 h-32 mt-6 flex items-center justify-center rounded-full border-8 border-slate-100 mx-auto"
              [style.border-top-color]="statusColor"
              [style.border-right-color]="statusColor"
              style="transform: rotate(45deg)">
             <div style="transform: rotate(-45deg)" class="text-center">
-                <p class="text-2xl font-bold text-slate-800">฿{{ budgetAmount | number }}</p>
+                <p class="text-2xl font-bold text-slate-800">฿{{ budgetAmount | number:'1.0-0' }}</p>
                 <p class="text-[10px] text-slate-400">/ day</p>
             </div>
         </div>
-        <p class="text-xs font-medium mt-4 px-3 py-1 rounded-full"
+
+        <!-- Status badge -->
+        <p class="text-xs font-medium mt-4 px-3 py-1 rounded-full self-start"
            [style.color]="statusColor"
            [style.background-color]="statusColor + '15'">
             Status: {{ status }}
         </p>
-        <div class="flex gap-3 mt-2 text-[10px] text-slate-400">
-            <span>{{ daysRemaining }}d left</span>
-            <span>•</span>
-            <span>฿{{ remaining | number }} pool</span>
+
+        <!-- Stats row -->
+        <div class="grid grid-cols-2 gap-2 mt-2">
+            <div class="bg-slate-50 rounded-xl p-2.5 text-center">
+                <p class="text-[9px] text-slate-400 mb-1">Spent this month</p>
+                <p class="text-xs font-bold text-slate-700">฿{{ spentThisMonth | number:'1.0-0' }}</p>
+            </div>
+            <div class="bg-slate-50 rounded-xl p-2.5 text-center">
+                <p class="text-[9px] text-slate-400 mb-1">Days left</p>
+                <p class="text-xs font-bold text-slate-700">{{ daysRemaining }}d</p>
+            </div>
+        </div>
+
+        <!-- Remaining pool -->
+        <div class="flex gap-2 mt-2 text-[10px] text-slate-400 items-center">
+            <i class="fa-solid fa-piggy-bank text-[9px]"></i>
+            <span>฿{{ remaining | number:'1.0-0' }} remaining pool</span>
         </div>
     }
 </div>

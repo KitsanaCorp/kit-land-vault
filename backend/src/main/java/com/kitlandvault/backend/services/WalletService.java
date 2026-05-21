@@ -18,6 +18,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -52,55 +53,74 @@ public class WalletService {
         walletRepository.save(wallet);
     }
 
-    public DailyBudgetResponse getDailyBudget(Long walletId) {
-        Wallet wallet = getWalletEntity(walletId);
+    /**
+     * Calculates a daily budget by aggregating ALL wallets with role=DAILY for the given user.
+     * dailyRate = (totalBalance - spentThisMonth) / daysRemainingInMonth
+     * No stored dailyBudget field is required — it is derived purely from balances and transactions.
+     */
+    public DailyBudgetResponse getDailySummary(Long userId) {
+        // 1. Get all DAILY wallets for this user
+        List<Wallet> allWallets = walletRepository.findByUserId(userId);
+        List<Wallet> dailyWallets = allWallets.stream()
+                .filter(w -> Wallet.AccountRole.DAILY.equals(w.getAccountRole()))
+                .collect(Collectors.toList());
 
-        if (wallet.getDailyBudget() == null) {
-            throw new RuntimeException("Wallet does not have a daily budget configured");
+        if (dailyWallets.isEmpty()) {
+            return DailyBudgetResponse.builder()
+                    .totalBalance(BigDecimal.ZERO)
+                    .spentThisMonth(BigDecimal.ZERO)
+                    .remaining(BigDecimal.ZERO)
+                    .dailyRate(BigDecimal.ZERO)
+                    .daysRemaining(0)
+                    .walletCount(0)
+                    .walletNames(List.of())
+                    .build();
         }
 
-        LocalDate today = LocalDate.now();
-        YearMonth currentMonth = YearMonth.from(today);
-        int totalDays = currentMonth.lengthOfMonth();
-        int dayOfMonth = today.getDayOfMonth();
-        int daysRemaining = totalDays - dayOfMonth + 1; // including today
-
-        // Monthly budget ceiling
-        BigDecimal totalBudget = wallet.getDailyBudget().multiply(BigDecimal.valueOf(totalDays));
-
-        // Reserve amount (e.g. groceries set aside)
-        BigDecimal reserve = wallet.getReserveAmount() != null
-                ? wallet.getReserveAmount() : BigDecimal.ZERO;
-
-        // Actual spent this month — sum of real transactions from this wallet
-        LocalDate firstDayOfMonth = currentMonth.atDay(1);
-        List<Transaction> monthlyTransactions = transactionRepository
-                .findByWalletIdAndTransactionDateBetween(walletId, firstDayOfMonth, today);
-        BigDecimal spent = monthlyTransactions.stream()
-                .map(Transaction::getAmount)
+        // 2. Sum balances of all DAILY wallets
+        BigDecimal totalBalance = dailyWallets.stream()
+                .map(Wallet::getBalance)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // Budget remaining = totalBudget - spent (budget tracking, not cash balance)
-        BigDecimal budgetRemaining = totalBudget.subtract(reserve).subtract(spent);
-        if (budgetRemaining.compareTo(BigDecimal.ZERO) < 0) {
-            budgetRemaining = BigDecimal.ZERO;
+        // 3. Sum this month's transactions from all DAILY wallets
+        LocalDate today = LocalDate.now();
+        YearMonth currentMonth = YearMonth.from(today);
+        LocalDate firstDayOfMonth = currentMonth.atDay(1);
+        int daysRemaining = currentMonth.lengthOfMonth() - today.getDayOfMonth() + 1;
+
+        BigDecimal spentThisMonth = BigDecimal.ZERO;
+        for (Wallet w : dailyWallets) {
+            List<Transaction> txs = transactionRepository
+                    .findByWalletIdAndTransactionDateBetween(w.getId(), firstDayOfMonth, today);
+            BigDecimal walletSpent = txs.stream()
+                    .map(Transaction::getAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            spentThisMonth = spentThisMonth.add(walletSpent);
         }
 
-        // Daily rate = how much budget is left to spend per remaining day
+        // 4. Remaining = totalBalance (since balance is already reduced by transactions)
+        BigDecimal remaining = totalBalance;
+        if (remaining.compareTo(BigDecimal.ZERO) < 0) {
+            remaining = BigDecimal.ZERO;
+        }
+
+        // 5. dailyRate = remaining / daysRemaining
         BigDecimal dailyRate = daysRemaining > 0
-                ? budgetRemaining.divide(BigDecimal.valueOf(daysRemaining), 2, RoundingMode.HALF_UP)
+                ? remaining.divide(BigDecimal.valueOf(daysRemaining), 2, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO;
 
+        List<String> walletNames = dailyWallets.stream()
+                .map(Wallet::getName)
+                .collect(Collectors.toList());
+
         return DailyBudgetResponse.builder()
-                .walletId(walletId)
-                .walletName(wallet.getName())
-                .accountRole(wallet.getAccountRole() != null ? wallet.getAccountRole().name() : null)
-                .totalBudget(totalBudget)
-                .reserveAmount(reserve)
-                .spent(spent)
-                .remaining(budgetRemaining)
+                .totalBalance(totalBalance)
+                .spentThisMonth(spentThisMonth)
+                .remaining(remaining)
                 .dailyRate(dailyRate)
                 .daysRemaining(daysRemaining)
+                .walletCount(dailyWallets.size())
+                .walletNames(walletNames)
                 .build();
     }
 

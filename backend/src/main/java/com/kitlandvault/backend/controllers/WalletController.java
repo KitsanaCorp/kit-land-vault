@@ -22,9 +22,9 @@ public class WalletController {
         return ResponseEntity.ok(walletService.getWalletsByUser(userId));
     }
 
-    @GetMapping("/{id}/daily-budget")
-    public ResponseEntity<DailyBudgetResponse> getDailyBudget(@PathVariable Long id) {
-        return ResponseEntity.ok(walletService.getDailyBudget(id));
+    @GetMapping("/daily-summary")
+    public ResponseEntity<DailyBudgetResponse> getDailySummary(@RequestParam Long userId) {
+        return ResponseEntity.ok(walletService.getDailySummary(userId));
     }
 
     @PostMapping

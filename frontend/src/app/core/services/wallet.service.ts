@@ -16,15 +16,13 @@ export interface Wallet {
 }
 
 export interface DailyBudgetInfo {
-  walletId: number;
-  walletName: string;
-  accountRole: string;
-  totalBudget: number;
-  reserveAmount: number;
-  spent: number;
+  totalBalance: number;
+  spentThisMonth: number;
   remaining: number;
   dailyRate: number;
   daysRemaining: number;
+  walletCount: number;
+  walletNames: string[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -41,8 +39,8 @@ export class WalletService {
     return this.http.get<Wallet[]>(`${this.API_URL}/wallets?userId=${this.userId}`);
   }
 
-  getDailyBudget(walletId: number): Observable<DailyBudgetInfo> {
-    return this.http.get<DailyBudgetInfo>(`${this.API_URL}/wallets/${walletId}/daily-budget`);
+  getDailySummary(): Observable<DailyBudgetInfo> {
+    return this.http.get<DailyBudgetInfo>(`${this.API_URL}/wallets/daily-summary?userId=${this.userId}`);
   }
 
   createWallet(wallet: Partial<Wallet>): Observable<Wallet> {
