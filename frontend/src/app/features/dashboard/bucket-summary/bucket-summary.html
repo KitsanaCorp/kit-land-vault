@@ -54,9 +54,6 @@
                     </div>
                     <div class="flex justify-between items-end mt-1">
                         <p class="font-bold text-lg leading-none">฿{{ bucket.balance | number }}</p>
-                        @if (bucket.dailyBudget) {
-                            <span class="text-[9px] opacity-75 leading-none">฿{{ bucket.dailyBudget }}/day</span>
-                        }
                     </div>
                 </div>
             }
@@ -139,20 +136,11 @@
                             <input type="text" [(ngModel)]="formName" placeholder="e.g. บัญชีอาหาร" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-[#6B8E7B]/20 focus:border-[#6B8E7B] text-slate-700 font-medium text-sm outline-none transition-all" required />
                         </div>
 
-                        <!-- Initial Balance & Daily Budget Row -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <!-- Initial Balance (Editable ONLY on create) -->
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Initial Balance (฿)</label>
-                                <input type="number" [(ngModel)]="formBalance" placeholder="0" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-[#6B8E7B]/20 focus:border-[#6B8E7B] text-slate-700 font-semibold text-sm outline-none transition-all" />
-                                <p *ngIf="editingWallet" class="text-[9px] text-slate-400 mt-1">เปลี่ยนยอดจะมีผลทันที</p>
-                            </div>
-
-                            <!-- Daily Budget (Optional) -->
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Daily Budget (Optional, ฿)</label>
-                                <input type="number" [(ngModel)]="formDailyBudget" placeholder="e.g. 500" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-[#6B8E7B]/20 focus:border-[#6B8E7B] text-slate-700 font-semibold text-sm outline-none transition-all" />
-                            </div>
+                        <!-- Initial Balance -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Initial Balance (฿)</label>
+                            <input type="number" [(ngModel)]="formBalance" placeholder="0" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-[#6B8E7B]/20 focus:border-[#6B8E7B] text-slate-700 font-semibold text-sm outline-none transition-all" />
+                            <p *ngIf="editingWallet" class="text-[9px] text-slate-400 mt-1">เปลี่ยนยอดจะมีผลทันที</p>
                         </div>
 
                         <!-- Account Type / Role selection -->

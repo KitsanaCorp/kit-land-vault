@@ -53,7 +53,6 @@ export class BucketSummary implements OnInit {
   editingWallet: Partial<Wallet> | null = null;
   formName = '';
   formBalance = 0;
-  formDailyBudget: number | null = null;
   formColor = '#10B981';
   formRole = 'CUSTOM';
   palette = PALETTE_COLORS;
@@ -111,7 +110,6 @@ export class BucketSummary implements OnInit {
     this.editingWallet = null;
     this.formName = '';
     this.formBalance = 0;
-    this.formDailyBudget = null;
     this.formColor = '#10B981';
     this.formRole = 'CUSTOM';
     this.isFormOpen = true;
@@ -132,7 +130,6 @@ export class BucketSummary implements OnInit {
     };
     this.formName = bucket.name;
     this.formBalance = bucket.balance;
-    this.formDailyBudget = bucket.dailyBudget;
     this.formColor = bucket.color;
     this.formRole = bucket.accountRole;
     this.isFormOpen = true;
@@ -150,7 +147,7 @@ export class BucketSummary implements OnInit {
     const payload: Partial<Wallet> = {
       name: this.formName,
       color: this.formColor,
-      dailyBudget: this.formDailyBudget,
+      dailyBudget: null,
       accountRole: this.formRole,
       balance: this.formBalance
     };
