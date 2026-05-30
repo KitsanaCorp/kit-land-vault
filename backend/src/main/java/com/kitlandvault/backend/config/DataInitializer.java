@@ -81,27 +81,27 @@ public class DataInitializer implements CommandLineRunner {
 
         // 5. Create Categories
         // Expense categories
-        createCategory("Food & Dining", "ONE_TIME", "EXPENSE");
-        createCategory("Groceries", "RECURRING", "EXPENSE");
-        createCategory("Transport", "ONE_TIME", "EXPENSE");
-        createCategory("Utilities", "RECURRING", "EXPENSE");
-        createCategory("Internet", "RECURRING", "EXPENSE");
-        createCategory("Mortgage", "RECURRING", "EXPENSE");
-        createCategory("Car Installment", "RECURRING", "EXPENSE");
-        createCategory("Insurance", "RECURRING", "EXPENSE");
-        createCategory("Subscriptions", "RECURRING", "EXPENSE");
-        createCategory("Parents Allowance", "RECURRING", "EXPENSE");
-        createCategory("Entertainment", "ONE_TIME", "EXPENSE");
-        createCategory("Shopping", "ONE_TIME", "EXPENSE");
-        createCategory("Healthcare", "ONE_TIME", "EXPENSE");
-        createCategory("Education", "ONE_TIME", "EXPENSE");
-        createCategory("Other Expense", "ONE_TIME", "EXPENSE");
+        createCategory("Food & Dining (ทานข้าวนอกบ้าน)", "ONE_TIME", "EXPENSE");
+        createCategory("Groceries (ซื้อของเข้าบ้าน)", "RECURRING", "EXPENSE");
+        createCategory("Transport (ค่าเดินทาง)", "ONE_TIME", "EXPENSE");
+        createCategory("Utilities (ค่าน้ำค่าไฟ)", "RECURRING", "EXPENSE");
+        createCategory("Internet (ค่าเน็ต/โทรศัพท์)", "RECURRING", "EXPENSE");
+        createCategory("Mortgage (ค่าผ่อนบ้าน)", "RECURRING", "EXPENSE");
+        createCategory("Car Installment (ค่าผ่อนรถ)", "RECURRING", "EXPENSE");
+        createCategory("Insurance (ค่าเบี้ยประกัน)", "RECURRING", "EXPENSE");
+        createCategory("Subscriptions (บริการรายเดือน)", "RECURRING", "EXPENSE");
+        createCategory("Parents Allowance (เงินให้พ่อแม่)", "RECURRING", "EXPENSE");
+        createCategory("Entertainment (ความบันเทิง)", "ONE_TIME", "EXPENSE");
+        createCategory("Shopping (ช้อปปิ้ง)", "ONE_TIME", "EXPENSE");
+        createCategory("Healthcare (สุขภาพ)", "ONE_TIME", "EXPENSE");
+        createCategory("Education (การศึกษา)", "ONE_TIME", "EXPENSE");
+        createCategory("Other Expense (ค่าใช้จ่ายอื่นๆ)", "ONE_TIME", "EXPENSE");
 
         // Income categories
-        createCategory("Salary", "RECURRING", "INCOME");
-        createCategory("Bonus", "ONE_TIME", "INCOME");
-        createCategory("Freelance", "ONE_TIME", "INCOME");
-        createCategory("Other Income", "ONE_TIME", "INCOME");
+        createCategory("Salary (เงินเดือน)", "RECURRING", "INCOME");
+        createCategory("Bonus (โบนัส)", "ONE_TIME", "INCOME");
+        createCategory("Freelance (งานนอก/ฟรีแลนซ์)", "ONE_TIME", "INCOME");
+        createCategory("Other Income (รายได้อื่นๆ)", "ONE_TIME", "INCOME");
 
         log.info("Created {} categories", categoryRepository.count());
         log.info("Database seeding complete!");
