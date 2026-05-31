@@ -103,6 +103,32 @@ public class DataInitializer implements CommandLineRunner {
         createCategory("Freelance (งานนอก/ฟรีแลนซ์)", "ONE_TIME", "INCOME");
         createCategory("Other Income (รายได้อื่นๆ)", "ONE_TIME", "INCOME");
 
+        // 6. Create Sandbox/Test Family and Users
+        FamilyGroup sandboxFamily = FamilyGroup.builder()
+                .name("Sandbox Family Group")
+                .build();
+        entityManager.persist(sandboxFamily);
+        entityManager.flush();
+
+        String defaultTestPwd = passwordEncoder.encode("password123");
+        for (int i = 1; i <= 4; i++) {
+            User testUser = User.builder()
+                    .username("test_user" + i)
+                    .passwordHash(defaultTestPwd)
+                    .role("USER")
+                    .familyGroup(sandboxFamily)
+                    .build();
+            testUser = userRepository.save(testUser);
+            
+            // Create default wallets for test user
+            createWallet(testUser, "Daily Wallet", Wallet.AccountRole.DAILY,
+                    new BigDecimal("15000"), new BigDecimal("500"), new BigDecimal("2000"), null, "#10B981");
+            createWallet(testUser, "Savings Wallet", Wallet.AccountRole.SINKING_FUND,
+                    new BigDecimal("30000"), null, null, null, "#6366F1");
+            
+            log.info("Created test user: {} (id={}) with standard wallets", testUser.getUsername(), testUser.getId());
+        }
+
         log.info("Created {} categories", categoryRepository.count());
         log.info("Database seeding complete!");
     }
