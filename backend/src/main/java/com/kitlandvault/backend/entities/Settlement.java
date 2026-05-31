@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Settlement {
+public class Settlement extends Auditable {
 
     public enum Type {
         RECEIVABLE,
@@ -60,12 +60,4 @@ public class Settlement {
     private LocalDateTime settledAt;
 
     private String note;
-
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
 }

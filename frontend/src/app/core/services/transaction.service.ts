@@ -16,6 +16,8 @@ export interface Transaction {
   transactionDate: string;
   description: string;
   transactionType?: string;
+  createdAt?: string;
+  createdBy?: string;
 }
 
 export interface TransactionRequest {

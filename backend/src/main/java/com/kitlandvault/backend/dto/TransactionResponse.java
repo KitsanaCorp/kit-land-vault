@@ -20,6 +20,8 @@ public class TransactionResponse {
     private BigDecimal myShare;
     private BigDecimal partnerShare;
     private LocalDate transactionDate;
+    private java.time.LocalDateTime createdAt;
+    private String createdBy;
     private String description;
     private String transactionType;
 }

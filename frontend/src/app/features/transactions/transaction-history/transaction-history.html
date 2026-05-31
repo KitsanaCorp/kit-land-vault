@@ -80,7 +80,15 @@
                                             <span class="px-2 py-0.5 text-[10px] font-medium rounded-full" [ngClass]="tx.tagStyle">{{ tx.tag }}</span>
                                             <span class="text-xs text-slate-400"><i class="fa-solid fa-wallet mr-1"></i> {{ tx.walletName }}</span>
                                             <span class="text-xs text-slate-400 hidden sm:inline">•</span>
-                                            <span class="text-xs text-slate-400"><i class="fa-regular fa-calendar mr-1"></i> {{ tx.date | date:'mediumDate' }}</span>
+                                            <span class="text-xs text-slate-400" title="Transaction Date"><i class="fa-regular fa-calendar mr-1"></i> {{ tx.date | date:'mediumDate' }}</span>
+                                            @if (tx.createdDate) {
+                                                <span class="text-xs text-slate-400 hidden sm:inline">•</span>
+                                                <span class="text-xs text-slate-400" title="Recorded Timestamp"><i class="fa-regular fa-clock mr-1"></i> {{ tx.createdDate | date:'MMM d, y, h:mm a' }}</span>
+                                            }
+                                            @if (tx.createdBy) {
+                                                <span class="text-xs text-slate-400 hidden sm:inline">•</span>
+                                                <span class="text-xs text-slate-400 font-medium" title="Created By"><i class="fa-solid fa-user text-[10px] mr-1"></i> By: {{ tx.createdBy }}</span>
+                                            }
                                         </div>
                                     </div>
                                 </div>

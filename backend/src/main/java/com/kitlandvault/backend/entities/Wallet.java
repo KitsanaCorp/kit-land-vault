@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Wallet {
+public class Wallet extends Auditable {
 
     public enum AccountRole {
         TRANSIT,        // BBL — receives salary, must clear to 0
@@ -70,27 +70,10 @@ public class Wallet {
     @Builder.Default
     private Integer budgetResetDay = 1;
 
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
     @PreRemove
     private void preRemove() {
         if (transactions != null) {
             transactions.forEach(t -> t.setWallet(null));
         }
-    }
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
     }
 }

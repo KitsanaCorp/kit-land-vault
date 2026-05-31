@@ -28,8 +28,10 @@ export class SettlementService {
     return this.authService.getUser()?.userId ?? 0;
   }
 
-  // Assuming only 2 users in the system: admin (1) and kit (2).
+  // Assuming only 2 users in the system: admin and kit.
   private get partnerId(): number {
+    if (this.userId === 3) return 4;
+    if (this.userId === 4) return 3;
     return this.userId === 1 ? 2 : 1;
   }
 
