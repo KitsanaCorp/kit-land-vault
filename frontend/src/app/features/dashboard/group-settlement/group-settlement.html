@@ -1,0 +1,36 @@
+<div class="h-full cozy-card p-5 border border-indigo-200 bg-indigo-50/50">
+    <h2 class="text-sm font-semibold text-indigo-800 mb-3 flex items-center gap-2">
+        <i class="fa-solid fa-users text-xs"></i> Group Settlements
+    </h2>
+    
+    <div class="space-y-2 mb-3">
+        <!-- Owed to Me -->
+        <div class="bg-emerald-600 text-white px-3 py-2 rounded-lg text-xs flex justify-between">
+          <span>Owed to you:</span> 
+          <span class="font-bold">฿{{ summary.totalOwedToMe | number:'1.2-2' }}</span>
+        </div>
+        
+        <!-- I Owe -->
+        <div class="bg-rose-500 text-white px-3 py-2 rounded-lg text-xs flex justify-between">
+          <span>You owe:</span> 
+          <span class="font-bold">฿{{ summary.totalIOweToOthers | number:'1.2-2' }}</span>
+        </div>
+        
+        <!-- Net status badge -->
+        <div class="px-3 py-1 text-[10px] rounded font-bold uppercase tracking-wider flex justify-between select-none"
+             [ngClass]="{
+               'bg-emerald-100 text-emerald-800 border border-emerald-200/50': summary.overallNetBalance > 0,
+               'bg-rose-100 text-rose-800 border border-rose-200/50': summary.overallNetBalance < 0,
+               'bg-slate-100 text-slate-600 border border-slate-200/50': summary.overallNetBalance === 0
+             }">
+             <span>Net Status:</span>
+             <span>฿{{ summary.overallNetBalance | number:'1.2-2' }}</span>
+        </div>
+    </div>
+    
+    <button 
+        (click)="goToGroups()"
+        class="w-full bg-indigo-600 text-white py-2 rounded-lg text-sm font-bold hover:bg-indigo-700 transition shadow-sm">
+        Manage Groups
+    </button>
+</div>

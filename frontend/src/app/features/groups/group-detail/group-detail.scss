@@ -1,0 +1,15 @@
+.menu-item {
+  color: #64748B;
+  transition: all 0.2s ease-in-out;
+  
+  &:hover {
+    background-color: rgba(30, 41, 59, 0.05);
+    color: #1E293B;
+  }
+  
+  &.active {
+    background-color: #1E293B !important;
+    color: #F4D03F !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+}
