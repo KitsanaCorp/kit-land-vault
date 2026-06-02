@@ -103,6 +103,87 @@ public class DataInitializer implements CommandLineRunner {
         createCategory("Freelance (งานนอก/ฟรีแลนซ์)", "ONE_TIME", "INCOME");
         createCategory("Other Income (รายได้อื่นๆ)", "ONE_TIME", "INCOME");
 
+        // 6. Create Sandbox/Test Family and Users
+        FamilyGroup sandboxFamily = FamilyGroup.builder()
+                .name("Sandbox Family Group")
+                .build();
+        entityManager.persist(sandboxFamily);
+        entityManager.flush();
+
+        List<Category> allCategories = categoryRepository.findAll();
+        Category catSalary = allCategories.stream().filter(c -> c.getName().startsWith("Salary")).findFirst().orElse(null);
+        Category catFreelance = allCategories.stream().filter(c -> c.getName().startsWith("Freelance")).findFirst().orElse(null);
+        Category catFood = allCategories.stream().filter(c -> c.getName().startsWith("Food")).findFirst().orElse(null);
+        Category catGroceries = allCategories.stream().filter(c -> c.getName().startsWith("Groceries")).findFirst().orElse(null);
+        Category catTransport = allCategories.stream().filter(c -> c.getName().startsWith("Transport")).findFirst().orElse(null);
+        Category catUtilities = allCategories.stream().filter(c -> c.getName().startsWith("Utilities")).findFirst().orElse(null);
+        Category catInternet = allCategories.stream().filter(c -> c.getName().startsWith("Internet")).findFirst().orElse(null);
+        Category catSubs = allCategories.stream().filter(c -> c.getName().startsWith("Subscriptions")).findFirst().orElse(null);
+        Category catShopping = allCategories.stream().filter(c -> c.getName().startsWith("Shopping")).findFirst().orElse(null);
+        Category catEntertainment = allCategories.stream().filter(c -> c.getName().startsWith("Entertainment")).findFirst().orElse(null);
+        Category catOther = allCategories.stream().filter(c -> c.getName().startsWith("Other Expense")).findFirst().orElse(null);
+
+        String defaultTestPwd = passwordEncoder.encode("password123");
+        for (int i = 1; i <= 4; i++) {
+            User testUser = User.builder()
+                    .username("test_user" + i)
+                    .passwordHash(defaultTestPwd)
+                    .role("USER")
+                    .familyGroup(sandboxFamily)
+                    .build();
+            testUser = userRepository.save(testUser);
+            
+            // Create default wallets for test user (5 wallets total)
+            Wallet testDaily = createWallet(testUser, "Daily Wallet", Wallet.AccountRole.DAILY,
+                    new BigDecimal("15000"), new BigDecimal("500"), new BigDecimal("2000"), null, "#10B981");
+            Wallet testSavings = createWallet(testUser, "Savings Wallet", Wallet.AccountRole.SINKING_FUND,
+                    new BigDecimal("30000"), null, null, null, "#6366F1");
+            Wallet transit = createWallet(testUser, "Salary Transit", Wallet.AccountRole.TRANSIT,
+                    new BigDecimal("0"), null, null, null, "#3B82F6");
+            Wallet bills = createWallet(testUser, "Fixed Bills", Wallet.AccountRole.BILLS,
+                    new BigDecimal("5000"), null, null, null, "#EF4444");
+            Wallet investment = createWallet(testUser, "Stocks & ETFs", Wallet.AccountRole.INVESTMENT,
+                    new BigDecimal("10000"), null, null, null, "#8B5CF6");
+            
+            log.info("Created test user: {} (id={}) with 5 wallets", testUser.getUsername(), testUser.getId());
+
+            // Seed realistic transactions (Total 24 transactions)
+            
+            // [Wallet 3: Salary Transit]
+            createTx(testUser, sandboxFamily, catSalary, transit, new BigDecimal("45000.00"), true, "2026-05-01", "Monthly Salary Deposit");
+            createTx(testUser, sandboxFamily, catOther, transit, new BigDecimal("15000.00"), false, "2026-05-02", "Transfer to Savings Wallet");
+            createTx(testUser, sandboxFamily, catOther, transit, new BigDecimal("20000.00"), false, "2026-05-02", "Transfer to Daily Wallet");
+            createTx(testUser, sandboxFamily, catOther, transit, new BigDecimal("10000.00"), false, "2026-05-02", "Transfer to Fixed Bills");
+
+            // [Wallet 2: Savings Wallet]
+            createTx(testUser, sandboxFamily, catOther, testSavings, new BigDecimal("15000.00"), true, "2026-05-02", "Inbound from Transit");
+            createTx(testUser, sandboxFamily, catFreelance, testSavings, new BigDecimal("8500.00"), true, "2026-05-15", "Logo Design Freelance");
+
+            // [Wallet 4: Fixed Bills]
+            createTx(testUser, sandboxFamily, catOther, bills, new BigDecimal("10000.00"), true, "2026-05-02", "Inbound from Transit");
+            createTx(testUser, sandboxFamily, catUtilities, bills, new BigDecimal("1850.00"), false, "2026-05-05", "Monthly Electric Bill");
+            createTx(testUser, sandboxFamily, catUtilities, bills, new BigDecimal("320.00"), false, "2026-05-06", "Monthly Water Bill");
+            createTx(testUser, sandboxFamily, catInternet, bills, new BigDecimal("699.00"), false, "2026-05-10", "Fiber Internet Broadband");
+            createTx(testUser, sandboxFamily, catSubs, bills, new BigDecimal("419.00"), false, "2026-05-12", "Netflix Family Plan");
+
+            // [Wallet 5: Stocks & ETFs]
+            createTx(testUser, sandboxFamily, catOther, investment, new BigDecimal("3000.00"), false, "2026-05-05", "VOO ETF Purchase");
+            createTx(testUser, sandboxFamily, catOther, investment, new BigDecimal("2000.00"), false, "2026-05-18", "SET50 Mutual Fund");
+            createTx(testUser, sandboxFamily, catOther, investment, new BigDecimal("450.00"), true, "2026-05-25", "Quarterly Stock Dividend");
+
+            // [Wallet 1: Daily Wallet]
+            createTx(testUser, sandboxFamily, catOther, testDaily, new BigDecimal("20000.00"), true, "2026-05-02", "Inbound from Transit");
+            createTx(testUser, sandboxFamily, catFood, testDaily, new BigDecimal("165.00"), false, "2026-05-03", "Ice Latte & Croissant");
+            createTx(testUser, sandboxFamily, catTransport, testDaily, new BigDecimal("180.00"), false, "2026-05-04", "Grab taxi to office");
+            createTx(testUser, sandboxFamily, catFood, testDaily, new BigDecimal("590.00"), false, "2026-05-08", "Shabu dinner with team");
+            createTx(testUser, sandboxFamily, catGroceries, testDaily, new BigDecimal("1250.00"), false, "2026-05-09", "Weekly food & supplies");
+            createTx(testUser, sandboxFamily, catEntertainment, testDaily, new BigDecimal("520.00"), false, "2026-05-14", "Weekend movie ticket");
+            createTx(testUser, sandboxFamily, catShopping, testDaily, new BigDecimal("1490.00"), false, "2026-05-16", "Polo shirt & pants");
+            createTx(testUser, sandboxFamily, catTransport, testDaily, new BigDecimal("150.00"), false, "2026-05-20", "Top-up Rabbit Card");
+            createTx(testUser, sandboxFamily, catFood, testDaily, new BigDecimal("245.00"), false, "2026-05-22", "McDonalds Burger Set");
+            createTx(testUser, sandboxFamily, catOther, testDaily, new BigDecimal("350.00"), false, "2026-05-28", "Cold medicine & vitamins");
+        }
+
         log.info("Created {} categories", categoryRepository.count());
         log.info("Database seeding complete!");
     }
@@ -141,5 +222,29 @@ public class DataInitializer implements CommandLineRunner {
                 .transactionType(Category.TransactionType.valueOf(transactionType))
                 .build();
         categoryRepository.save(category);
+    }
+
+    private void createTx(User user, FamilyGroup family, Category category, Wallet wallet,
+                          BigDecimal amount, boolean isIncome, String date, String desc) {
+        Transaction transaction = Transaction.builder()
+                .user(user)
+                .familyGroup(family)
+                .category(category)
+                .wallet(wallet)
+                .amount(amount)
+                .splitType(Transaction.SplitType.PERSONAL)
+                .myShare(amount)
+                .partnerShare(BigDecimal.ZERO)
+                .transactionDate(java.time.LocalDate.parse(date))
+                .description(desc)
+                .build();
+        entityManager.persist(transaction);
+        
+        if (isIncome) {
+            wallet.setBalance(wallet.getBalance().add(amount));
+        } else {
+            wallet.setBalance(wallet.getBalance().subtract(amount));
+        }
+        walletRepository.save(wallet);
     }
 }

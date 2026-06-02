@@ -9,6 +9,8 @@ interface MappedTransaction {
   name: string;
   amount: number;
   date: Date;
+  createdDate?: Date;
+  createdBy?: string;
   icon: string;
   iconBg: string;
   iconColor: string;
@@ -105,6 +107,8 @@ export class TransactionHistory implements OnInit {
       name: tx.description || tx.categoryName,
       amount: tx.amount,
       date: new Date(tx.transactionDate),
+      createdDate: tx.createdAt ? new Date(tx.createdAt) : undefined,
+      createdBy: tx.createdBy,
       icon,
       iconBg,
       iconColor,

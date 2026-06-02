@@ -6,6 +6,7 @@ import { DailyBudget } from './daily-budget/daily-budget';
 import { NewTransactionBtn } from './new-transaction-btn/new-transaction-btn';
 import { BucketSummary } from './bucket-summary/bucket-summary';
 import { PartnerSettlement } from './partner-settlement/partner-settlement';
+import { GroupSettlement } from './group-settlement/group-settlement';
 import { BalanceChart } from './balance-chart/balance-chart';
 import { RecentTransactions } from './recent-transactions/recent-transactions';
 
@@ -19,6 +20,7 @@ import { RecentTransactions } from './recent-transactions/recent-transactions';
     NewTransactionBtn,
     BucketSummary,
     PartnerSettlement,
+    GroupSettlement,
     BalanceChart,
     RecentTransactions
   ],

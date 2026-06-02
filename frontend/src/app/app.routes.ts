@@ -24,6 +24,16 @@ export const routes: Routes = [
   },
 
   {
+    path: 'groups',
+    loadComponent: () => import('./features/groups/group-dashboard/group-dashboard').then(m => m.GroupDashboard),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'groups/:id',
+    loadComponent: () => import('./features/groups/group-detail/group-detail').then(m => m.GroupDetail),
+    canActivate: [authGuard]
+  },
+  {
     path: '**',
     redirectTo: ''
   }

@@ -1,0 +1,205 @@
+<div class="flex flex-col lg:flex-row h-screen overflow-hidden bg-[#F7F5F0]">
+  <!-- Mobile Header -->
+  <app-mobile-header />
+
+  <!-- Sidebar -->
+  <app-sidebar />
+
+  <!-- Main Content -->
+  <main class="flex-1 p-4 lg:p-8 overflow-y-auto">
+    <!-- Header row -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-slate-800 tracking-tight">Group Expense Ledger</h1>
+        <p class="text-slate-500 mt-1">Split expenses and track outstanding debts with test accounts</p>
+      </div>
+      <button 
+        (click)="openCreateModal()" 
+        class="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-[#F4D03F] px-5 py-3 rounded-xl font-bold shadow-md hover:shadow-lg transition-all duration-200">
+        <i class="fa-solid fa-plus"></i> Create New Group
+      </button>
+    </div>
+
+    <!-- Summary cards (Owed to Me, I Owe, Net Balance) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <!-- Owed to Me Card -->
+      <div class="bg-white/70 backdrop-blur-md border border-slate-200/50 p-6 rounded-2xl flex items-center justify-between shadow-sm">
+        <div>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">People Owe You</p>
+          <p class="text-2xl font-black text-emerald-600 mt-1">{{ summary.totalOwedToMe | number:'1.2-2' }} THB</p>
+        </div>
+        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
+          <i class="fa-solid fa-arrow-down-long"></i>
+        </div>
+      </div>
+
+      <!-- I Owe Others Card -->
+      <div class="bg-white/70 backdrop-blur-md border border-slate-200/50 p-6 rounded-2xl flex items-center justify-between shadow-sm">
+        <div>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">You Owe Others</p>
+          <p class="text-2xl font-black text-rose-500 mt-1">{{ summary.totalIOweToOthers | number:'1.2-2' }} THB</p>
+        </div>
+        <div class="w-12 h-12 bg-rose-50 text-rose-50 rounded-xl flex items-center justify-center text-xl text-rose-500">
+          <i class="fa-solid fa-arrow-up-long"></i>
+        </div>
+      </div>
+
+      <!-- Net Balance Card -->
+      <div 
+        [ngClass]="{
+          'bg-emerald-50/50 border-emerald-200/50 text-emerald-800': summary.overallNetBalance > 0,
+          'bg-rose-50/50 border-rose-200/50 text-rose-800': summary.overallNetBalance < 0,
+          'bg-white/70 border-slate-200/50 text-slate-800': summary.overallNetBalance === 0
+        }"
+        class="border p-6 rounded-2xl flex items-center justify-between shadow-sm">
+        <div>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Overall Net Status</p>
+          <p class="text-2xl font-black mt-1">
+            {{ summary.overallNetBalance | number:'1.2-2' }} THB
+          </p>
+        </div>
+        <div 
+          [ngClass]="{
+            'bg-emerald-100 text-emerald-700': summary.overallNetBalance > 0,
+            'bg-rose-100 text-rose-700': summary.overallNetBalance < 0,
+            'bg-slate-100 text-slate-600': summary.overallNetBalance === 0
+          }"
+          class="w-12 h-12 rounded-xl flex items-center justify-center text-xl">
+          <i class="fa-solid fa-wallet"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Groups section -->
+    <h2 class="text-xl font-extrabold text-slate-800 tracking-tight mb-4">Your Active Groups</h2>
+    
+    @if (groups.length === 0) {
+      <!-- Empty state card -->
+      <div class="bg-white/60 backdrop-blur-md border border-slate-200/40 p-12 rounded-3xl flex flex-col items-center justify-center text-center shadow-sm">
+        <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center text-3xl text-slate-400 mb-6 shadow-inner">
+          <i class="fa-solid fa-users-viewfinder"></i>
+        </div>
+        <h3 class="text-xl font-bold text-slate-700">No Groups Found</h3>
+        <p class="text-slate-500 mt-2 max-w-sm">Create a group to split restaurant tabs, household bills, or trips with other test users!</p>
+        <button 
+          (click)="openCreateModal()" 
+          class="bg-slate-800 hover:bg-slate-700 text-[#F4D03F] px-6 py-3 rounded-xl font-bold mt-6 shadow-md hover:shadow-lg transition-all duration-200">
+          Create Your First Group
+        </button>
+      </div>
+    } @else {
+      <!-- Groups grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (group of groups; track group.id) {
+          <div 
+            (click)="viewGroup(group.id)" 
+            class="bg-white border border-slate-200/50 hover:border-slate-300 hover:shadow-md rounded-2xl p-6 transition-all duration-200 cursor-pointer flex flex-col h-full group">
+            
+            <div class="flex items-start justify-between mb-4">
+              <div>
+                <h3 class="text-lg font-bold text-slate-800 group-hover:text-slate-900 transition-colors">{{ group.name }}</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Created by {{ group.createdBy || 'System' }}</p>
+              </div>
+              <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 group-hover:bg-slate-800 group-hover:text-[#F4D03F] flex items-center justify-center transition-all duration-200">
+                <i class="fa-solid fa-chevron-right text-xs"></i>
+              </div>
+            </div>
+
+            <div class="mt-auto pt-4 border-t border-slate-100">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wide">Your Net Share</p>
+                  @if (group.myNetBalance > 0) {
+                    <p class="text-base font-black text-emerald-600 mt-0.5">Owed: +{{ group.myNetBalance | number:'1.2-2' }} THB</p>
+                  } @else if (group.myNetBalance < 0) {
+                    <p class="text-base font-black text-rose-500 mt-0.5">You owe: {{ group.myNetBalance | number:'1.2-2' }} THB</p>
+                  } @else {
+                    <p class="text-sm font-semibold text-slate-500 mt-0.5">All Settled 👍</p>
+                  }
+                </div>
+                
+                <!-- Member avatars overlay -->
+                <div class="flex -space-x-2 overflow-hidden">
+                  @for (member of group.members | slice:0:3; track member.id) {
+                    <div 
+                      [title]="member.username"
+                      class="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center uppercase shadow-sm">
+                      {{ member.username.substring(0,2) }}
+                    </div>
+                  }
+                  @if (group.members.length > 3) {
+                    <div class="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-slate-800 text-[#F4D03F] text-xs font-bold flex items-center justify-center shadow-sm">
+                      +{{ group.members.length - 3 }}
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Create Group Modal Backdrop -->
+    @if (showModal) {
+      <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <!-- Modal Card -->
+        <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl border border-slate-100 flex flex-col max-h-[90vh]">
+          
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-extrabold text-slate-800">Create shared group</h3>
+            <button (click)="closeModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors flex items-center justify-center">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <div class="space-y-5 overflow-y-auto flex-1 pr-1">
+            <!-- Group Name input -->
+            <div>
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Group Name</label>
+              <input 
+                type="text" 
+                [(ngModel)]="newGroupName"
+                placeholder="e.g. Shared House Bills, Trip to Pattaya"
+                class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-800 transition-all font-medium text-slate-800" />
+            </div>
+
+            <!-- Members Select Checkboxes -->
+            <div>
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Select Members</label>
+              <div class="space-y-2 border border-slate-200/80 rounded-xl p-3 max-h-48 overflow-y-auto bg-slate-50/50">
+                @for (user of availableUsers; track user.id) {
+                  <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-white hover:shadow-sm cursor-pointer transition-all duration-150 select-none">
+                    <input 
+                      type="checkbox" 
+                      [(ngModel)]="user.selected"
+                      class="w-5 h-5 rounded border-slate-300 text-slate-800 focus:ring-slate-800" />
+                    <span class="font-semibold text-slate-700">{{ user.username }}</span>
+                  </label>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Buttons footer -->
+          <div class="flex gap-3 mt-6 pt-4 border-t border-slate-100">
+            <button 
+              (click)="closeModal()" 
+              class="flex-1 py-3 border border-slate-200 hover:bg-slate-50 rounded-xl font-bold text-slate-600 transition-colors">
+              Cancel
+            </button>
+            <button 
+              (click)="submitGroup()" 
+              [disabled]="!newGroupName.trim()"
+              class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-[#F4D03F] rounded-xl font-bold shadow-md hover:shadow-lg transition-all">
+              Create Group
+            </button>
+          </div>
+
+        </div>
+      </div>
+    }
+
+  </main>
+</div>

@@ -82,7 +82,9 @@ export class RepayModal implements OnInit {
     this.error = '';
 
     const myUserId = this.authService.getUser()?.userId || 1;
-    const partnerId = myUserId === 1 ? 2 : 1;
+    let partnerId = myUserId === 1 ? 2 : 1;
+    if (myUserId === 3) partnerId = 4;
+    else if (myUserId === 4) partnerId = 3;
 
     // If I am paying partner:
     // Creditor = partner, Debtor = me

@@ -98,7 +98,7 @@ public class TransactionService {
     }
 
     public List<TransactionResponse> getTransactionsByUser(Long userId) {
-        return transactionRepository.findByUserIdOrderByTransactionDateDesc(userId)
+        return transactionRepository.findByUserIdOrderByCreatedAtDescIdDesc(userId)
                 .stream()
                 .map(this::toResponse)
                 .toList();
@@ -106,7 +106,7 @@ public class TransactionService {
 
     public List<TransactionResponse> getTransactionsByDateRange(Long userId, LocalDate start, LocalDate end) {
         return transactionRepository
-                .findByUserIdAndTransactionDateBetweenOrderByTransactionDateDesc(userId, start, end)
+                .findByUserIdAndTransactionDateBetweenOrderByCreatedAtDescIdDesc(userId, start, end)
                 .stream()
                 .map(this::toResponse)
                 .toList();
@@ -136,6 +136,8 @@ public class TransactionService {
                 .myShare(tx.getMyShare())
                 .partnerShare(tx.getPartnerShare())
                 .transactionDate(tx.getTransactionDate())
+                .createdAt(tx.getCreatedAt())
+                .createdBy(tx.getCreatedBy())
                 .description(tx.getDescription())
                 .transactionType(tx.getCategory().getTransactionType() != null ? tx.getCategory().getTransactionType().name() : null)
                 .build();

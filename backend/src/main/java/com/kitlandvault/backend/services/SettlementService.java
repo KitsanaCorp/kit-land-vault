@@ -46,12 +46,12 @@ public class SettlementService {
      */
     public SettlementBalanceResponse getBalance(Long creditorId, Long debtorId) {
         BigDecimal totalReceivable = settlementRepository
-                .sumAmountByCreditorAndDebtorAndTypeAndStatus(
-                        creditorId, debtorId, Settlement.Type.RECEIVABLE, Settlement.Status.PENDING);
+                .sumAmountByCreditorAndDebtorAndType(
+                        creditorId, debtorId, Settlement.Type.RECEIVABLE);
 
         BigDecimal totalRepaid = settlementRepository
-                .sumAmountByCreditorAndDebtorAndTypeAndStatus(
-                        creditorId, debtorId, Settlement.Type.REPAYMENT, Settlement.Status.SETTLED);
+                .sumAmountByCreditorAndDebtorAndType(
+                        creditorId, debtorId, Settlement.Type.REPAYMENT);
 
         BigDecimal net = totalReceivable.subtract(totalRepaid);
 
@@ -101,6 +101,8 @@ public class SettlementService {
                         creditorId, debtorId, Settlement.Type.RECEIVABLE, Settlement.Status.PENDING);
 
         BigDecimal remaining = repaymentAmount;
+        List<Settlement> toSave = new java.util.ArrayList<>();
+
         for (Settlement receivable : pendingReceivables) {
             if (remaining.compareTo(BigDecimal.ZERO) <= 0) break;
 
@@ -108,10 +110,35 @@ public class SettlementService {
                 remaining = remaining.subtract(receivable.getAmount());
                 receivable.setStatus(Settlement.Status.SETTLED);
                 receivable.setSettledAt(LocalDateTime.now());
+                toSave.add(receivable);
+            } else {
+                // Split the receivable
+                BigDecimal settledPart = remaining;
+                BigDecimal pendingPart = receivable.getAmount().subtract(settledPart);
+
+                // Update current row to the settled portion
+                receivable.setAmount(settledPart);
+                receivable.setStatus(Settlement.Status.SETTLED);
+                receivable.setSettledAt(LocalDateTime.now());
+                toSave.add(receivable);
+
+                // Create a new pending row for the leftover portion
+                Settlement leftover = Settlement.builder()
+                        .creditor(receivable.getCreditor())
+                        .debtor(receivable.getDebtor())
+                        .transaction(receivable.getTransaction())
+                        .amount(pendingPart)
+                        .type(Settlement.Type.RECEIVABLE)
+                        .status(Settlement.Status.PENDING)
+                        .build();
+                leftover.setCreatedAt(receivable.getCreatedAt()); // Maintain original FIFO sorting
+                toSave.add(leftover);
+
+                remaining = BigDecimal.ZERO;
+                break;
             }
-            // partial settlement: leave as PENDING for now
         }
-        settlementRepository.saveAll(pendingReceivables);
+        settlementRepository.saveAll(toSave);
     }
 
     /**

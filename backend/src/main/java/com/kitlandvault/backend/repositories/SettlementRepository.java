@@ -25,4 +25,12 @@ public interface SettlementRepository extends JpaRepository<Settlement, Long> {
             @Param("debtorId") Long debtorId,
             @Param("type") Settlement.Type type,
             @Param("status") Settlement.Status status);
+
+    @Query("SELECT COALESCE(SUM(s.amount), 0) FROM Settlement s " +
+           "WHERE s.creditor.id = :creditorId AND s.debtor.id = :debtorId " +
+           "AND s.type = :type")
+    BigDecimal sumAmountByCreditorAndDebtorAndType(
+            @Param("creditorId") Long creditorId,
+            @Param("debtorId") Long debtorId,
+            @Param("type") Settlement.Type type);
 }
